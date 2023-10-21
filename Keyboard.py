@@ -95,11 +95,14 @@ class Keyboard():
         return False
 
     def _evaluate(self, x, out, *args, **kwargs):
-        n_a, n_b = 0, 0
         keyboard = x[0]
+        fr = self.evaluate_dataset(keyboard, dataset_fr)
+        en = self.evaluate_dataset(keyboard, dataset_en)
+        md = self.evaluate_dataset(keyboard, dataset_md)
+        java = self.evaluate_dataset(keyboard, dataset_java)
+        python = self.evaluate_dataset(keyboard, dataset_python)
 
-
-        out["F"] = np.array([- n_a, - n_b], dtype=float)
+        out["F"] = np.array([, - n_b], dtype=float)
 
 
 

@@ -15,7 +15,7 @@ def count_ngrams(text, n):
     return Counter(ngrams)
 
 def process_file(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
         text = f.read().lower()  # Convert text to lowercase for case insensitivity
 
     # Appeler la fonction pour calculer les statistiques pour ce fichier
@@ -31,8 +31,11 @@ def main(input_folder, output_folder):
             file_path = os.path.join(root, file)
             file_list.append(file_path)
 
-    with Pool(processes=12) as pool:  # Vous pouvez ajuster le nombre de processus
-        results = pool.map(process_file, file_list)
+    results = []
+    with Pool(processes=8) as pool:  # Vous pouvez ajuster le nombre de processus
+        for i, result in enumerate(pool.imap(process_file, file_list), 1):
+            print(f"{i}/{len(file_list)} done.")
+            results.append(result)
 
     # Rassembler les statistiques pour les monogrammes, digrammes et trigrammes
     total = 0
@@ -52,23 +55,26 @@ def main(input_folder, output_folder):
     # Écrire les statistiques dans des fichiers CSV dédiés
     monogram_output_path = os.path.join(output_folder, "monogram_statistics.csv")
     with open(monogram_output_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, escapechar='\\')
         for item, frequency in monogram_stats.items():
-            writer.writerow([item, frequency])
+            writer.writerow([item, frequency, frequency * 100 / total])
 
     digram_output_path = os.path.join(output_folder, "digram_statistics.csv")
     with open(digram_output_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, escapechar='\\')
         for item, frequency in digram_stats.items():
-            writer.writerow([item, frequency])
+            writer.writerow([item[0], item[1], frequency, frequency * 100 / total])
 
     trigram_output_path = os.path.join(output_folder, "trigram_statistics.csv")
     with open(trigram_output_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, escapechar='\\')
         for item, frequency in trigram_stats.items():
-            writer.writerow([item, frequency])
+            writer.writerow([item[0], item[1], item[2], frequency, frequency * 100 / total])
 
 if __name__ == "__main__":
-    input_folder = "/chemin/vers/votre/dossier/d_entree"
-    output_folder = "/chemin/vers/votre/dossier/de_sortie"
+    input_folder = "/home/move/Documents/perso/WikiExtractor/files-en"
+    output_folder = "/home/move/Documents/perso/stats/en"
+    #input_folder = "/home/move/Documents/perso/raw_data_perso/md"
+    #output_folder = "/home/move/Documents/perso/stats/md"
+
     main(input_folder, output_folder)
