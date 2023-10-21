@@ -37,7 +37,10 @@ def load_stats(folders, files, threshold = 0.01, limit = 1000):
             df.replace({r'\n': 'RET', r'\s': 'SPACE', r'\t': 'TAB'}, regex=True, inplace=True)
 
             # Stocker les statistiques dans le dictionnaire
-            stats[folder][ngram] = df.to_dict(orient="records")
+            if ngram == 1 :
+                stats[folder][ngram] = {row[0]: row[-1] for row in df.values}
+            else :
+                stats[folder][ngram] = {tuple(row[:-1]): row[-1] for row in df.values}
     return stats
 
 stats = load_stats(folders, files)
