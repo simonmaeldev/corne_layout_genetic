@@ -18,12 +18,16 @@ algorithm = NSGA2(pop_size=11,
 
 res = minimize(MyProblem(),
                algorithm,
-               ('n_gen', 100),
+               ('n_gen', 10),
                seed=1,
-               verbose=False)
+               verbose=True)
 
-Scatter().add(res.F).show()
-results = res.X[np.argsort(res.F[:, 0])]
-count = [np.sum([e == "a" for e in r]) for r in results[:, 0]]
-print(np.column_stack([results, count]))
+#Scatter().add(res.F).show()
+
+
+print("Best solution found: \nX = \n%s\nF = %s" % (res.X[0][0], res.F))
+
+#results = res.X[np.argsort(res.F[:, 0])]
+#count = [np.sum([e == "a" for e in r]) for r in results[:, 0]]
+#print(np.column_stack([results, count]))
 

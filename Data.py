@@ -1,23 +1,13 @@
 
 not_stackable = ["A", "À", "B", "C", "D", "E", "É", "È", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "TAB"]
 
-custom_stack = [(".", ":"), (",", ";"), ("^", "\""), ("SQT", "DQT"), ("!", "?"), ("_", "-")]
+custom_stack = [(".", ":"), (",", ";"), ("^", "¨"), ("SQT", "DQT"), ("!", "?"), ("_", "-")]
 
 other_symbols = ["(", "*", "/", "=", "{", "<", ">", "@", "+", "#", "[", "BSLH", "%"]
 
 char_to_set = ['A', 'À', 'B', 'C', 'D', 'E', 'É', 'È', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'TAB', '.', ',', '^', 'SQT', '!', '_']
 
-print(char_to_set)
-
-lns = len(not_stackable)
-lcs = len(custom_stack)
-los = len(other_symbols)
-
-print(lns)
-print(lcs)
-print(los)
-print(lns + lcs)
-print(lns + lcs + los)
+accent_ignore = char_to_set + ['RET', 'SPACE', 'DQT', 'LALT', 'DEL', 'ENTER', 'BSPC', 'ESC']
 
 software = {
     "A" : [["A"]],

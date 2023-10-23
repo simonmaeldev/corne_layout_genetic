@@ -17,7 +17,7 @@ class MyMutation(Mutation):
             # with a probabilty of 5% - intervert 2 keys
             if r < 0.05:
                 keyboard = X[i, 0]
-                key1, key2 = random.sample()
+                key1, key2 = random.sample(range(36), 2)
                 char1 = keyboard.get_char(key1)
                 char2 = keyboard.get_char(key2)
                 keyboard.set_key_char(key2, char1)

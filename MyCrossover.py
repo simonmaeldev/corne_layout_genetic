@@ -7,7 +7,7 @@ class MyCrossover(Crossover):
     def __init__(self):
 
         # define the crossover: number of parents and number of offsprings
-        super().__init__(2, 1)
+        super().__init__(2, 2)
 
     def _do(self, problem, X, **kwargs):
         # The input of has the following shape (n_parents, n_matings, n_var)
