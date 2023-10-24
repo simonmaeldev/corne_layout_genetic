@@ -7,7 +7,6 @@ from Dataset import *
 
 class Keyboard():
     def __init__(self, rand= True, key_to_char = None, char_to_key = None):
-        print("Creating a nwe keyboard instance")
         self.key_to_char = key_to_char
         self.char_to_key = char_to_key
         self.disp = None
@@ -93,12 +92,14 @@ class Keyboard():
     def mate_with(self, other):
         # mate with method in this paper http://azariaa.com/content/publications/keyboard.pdf
         # modified to generate 2 childs
-        not_done = random.shuffle(char_to_set.copy())
+        not_done = char_to_set.copy()
+        random.shuffle(not_done)
         parent1, parent2 = self, other
         child1, child2 = Keyboard(rand=False), Keyboard(rand=False)
         while not_done:
             # get parents
-            if np.random.random() < 0.5:
+            r = np.random.random()
+            if r < 0.5:
                 parent1, parent2 = self, other
             else:
                 parent1, parent2 = other, self
@@ -115,11 +116,6 @@ class Keyboard():
                 cycle_finished = original == char
         child1.finilize()
         child2.finilize()
-        print("==============================")
-        print(parent1)
-        print(parent2)
-        print(child1)
-        print(child2)
         return child1, child2
     
     def __eq__(self, other):
@@ -219,7 +215,10 @@ class Keyboard():
     def evaluate(self):
         res = {}
         for language, dict in stats.items():
-            res[language] = list(self.weight_proba(dict[1])) + list(self.get_nb_sfb_jump(dict[2])) + list(self.get_nb_sfb_jump(dict[3]))
+            res2 = self.get_nb_sfb_jump(dict[2])
+            res3 = self.get_nb_sfb_jump(dict[3])
+            sum_23 = list(map(lambda x, y: x + y, res2, res3))
+            res[language] = list(self.weight_proba(dict[1])) + sum_23
         self.full_stats = res
         return res
     
