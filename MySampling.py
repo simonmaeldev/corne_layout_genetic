@@ -9,11 +9,5 @@ class MySampling(Sampling):
 
         for i in range(n_samples):
             X[i, 0] = Keyboard()
-            print(X[i, 0])
 
-        print("==========")
-        for i in range(n_samples):
-            print(X[i, 0])
-
-        print(X)
         return X

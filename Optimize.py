@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pymoo.util.running_metric import RunningMetricAnimation
 import math
+from pyrecorder.recorder import Recorder
+from pyrecorder.writers.video import Video
 
 
 from MySampling import MySampling
@@ -15,7 +17,7 @@ from MyProblem import MyProblem
 from MyCallback import MyCallback
 
 
-algorithm = NSGA2(pop_size=10,
+algorithm = NSGA2(pop_size=100,
                   sampling=MySampling(),
                   crossover=MyCrossover(),
                   mutation=MyMutation(),
@@ -24,7 +26,7 @@ algorithm = NSGA2(pop_size=10,
 
 res = minimize(MyProblem(),
                algorithm,
-               ('n_gen', 40),
+               ('n_gen', 1000),
                callback = MyCallback(),
                seed=1,
                save_history=True,
@@ -91,13 +93,13 @@ titles = {
 #plt.show()
 
 
-running = RunningMetricAnimation(delta_gen=10,
-                        n_plots=1,
-                        key_press=False,
-                        do_show=True)
+running = RunningMetricAnimation(delta_gen=100,
+                        n_plots=10)
+
 
 for algorithm in res.history:
     running.update(algorithm)
+
 
 #results = res.X[np.argsort(res.F[:, 0])]
 #count = [np.sum([e == "a" for e in r]) for r in results[:, 0]]
