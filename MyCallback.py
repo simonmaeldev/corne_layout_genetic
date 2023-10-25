@@ -28,5 +28,5 @@ class MyCallback(Callback):
         self.data["best"] = []
 
     def notify(self, algorithm):
-        sorted_list = sorted(algorithm.pop.get("F"), key=sort_key(0, 2, 6))
+        sorted_list = sorted(algorithm.pop.get("F"), key=sort_key(0, 1))
         self.data["best"].append(sorted_list[0])
