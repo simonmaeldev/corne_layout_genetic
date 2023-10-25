@@ -13,6 +13,7 @@ class Keyboard():
         self.char_to_hand_finger = None
         self._set_thumb()
         self.full_stats = None
+        self.stats = None
 
         if rand:
             self.disp = list(range(36))
@@ -22,7 +23,8 @@ class Keyboard():
             self.finilize()
 
     def _set_thumb(self):
-        self.key_to_char = {}
+        if (self.key_to_char == None):
+            self.key_to_char = {}
         self.key_to_char[36] = "LALT"
         self.key_to_char[37] = "DEL"
         self.key_to_char[38] = "SPACE"
@@ -30,7 +32,8 @@ class Keyboard():
         self.key_to_char[40] = "BSPC"
         self.key_to_char[41] = "ESC"
 
-        self.char_to_key = {}
+        if (self.char_to_key == None):
+            self.char_to_key = {}
         self.char_to_key["LALT"] = 36
         self.char_to_key["DEL"] = 37
         self.char_to_key["SPACE"] = 38
@@ -88,6 +91,12 @@ class Keyboard():
     def set_key_char(self, key, char):
         self.key_to_char[key] = char
         self.char_to_key[char] = key
+    
+    def set_stats(self, stats):
+        self.stats = stats
+    
+    def get_stats(self):
+        return self.stats
 
     def mate_with(self, other):
         # mate with method in this paper http://azariaa.com/content/publications/keyboard.pdf
@@ -184,20 +193,8 @@ class Keyboard():
                                         saut_doigt += proba
                 prev = next
 
-        ratio_roll = 0
-        ratio_voisin_saut = 0
 
-        if roll_out != 0:
-            if roll_in == 0:
-                ratio_roll = float('inf')
-            else:
-                ratio_roll = roll_out / roll_in
-        if voisins_ligne_diff != 0:
-            if saut_doigt == 0:
-                ratio_voisin_saut = float('inf')
-            else:
-                ratio_voisin_saut = voisins_ligne_diff / saut_doigt
-        return prob_sfb, prob_row_jump, prob_repet, annulaire, ratio_roll, ratio_voisin_saut
+        return prob_sfb, prob_row_jump, prob_repet, annulaire, roll_out, roll_in, voisins_ligne_diff, saut_doigt
 
     # pour les monograms uniquement
     def weight_proba(self, dict):
@@ -218,9 +215,45 @@ class Keyboard():
             res2 = self.get_nb_sfb_jump(dict[2])
             res3 = self.get_nb_sfb_jump(dict[3])
             sum_23 = list(map(lambda x, y: x + y, res2, res3))
-            res[language] = list(self.weight_proba(dict[1])) + sum_23
+            roll_out = sum_23[4]
+            roll_in = sum_23[5]
+            voisins_ligne_diff = sum_23[6]
+            saut_doigt = sum_23[7]
+            ratio_roll = 0
+            ratio_voisin_saut = 0
+
+            if roll_out != 0:
+                if roll_in == 0:
+                    ratio_roll = float('inf')
+                else:
+                    ratio_roll = roll_out / roll_in
+            if voisins_ligne_diff != 0:
+                if saut_doigt == 0:
+                    ratio_voisin_saut = float('inf')
+                else:
+                    ratio_voisin_saut = voisins_ligne_diff / saut_doigt
+            res[language] = list(self.weight_proba(dict[1])) + sum_23 + [ratio_roll, ratio_voisin_saut]
         self.full_stats = res
-        return res
+        res_lst = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for language, values in res.items():
+            for i, val in enumerate(values):
+                res_lst[i] += weights[language] * val
+        stats_final = {
+            "total_weight" : res_lst[0],
+            "index" : res_lst[1],
+            "sfb" : res_lst[2],
+            "row_jumps" : res_lst[3],
+            "repetition" : res_lst[4],
+            "annulaire" : res_lst[5],
+            "roll out" : res_lst[6],
+            "roll in" : res_lst[7],
+            "voisin_ligne_diff" : res_lst[8],
+            "saut_doigt" : res_lst[9],
+            "ratio_roll" : res_lst[10],
+            "ratio_voisin_saut" : res_lst[11]
+        }
+        self.set_stats(stats_final)
+        return stats_final
     
     def __str__(self):
         sorted_keys = sorted(self.key_to_char.keys())
@@ -399,14 +432,14 @@ weight_map = {
     11: 2,
     12: 1.5,
     13: 1,
-    14: 0.5,
+    14: 0.7,
     15: 0.5,
     16: 0.5,
     17: 1,
     18: 1,
     19: 0.5,
     20: 0.5,
-    21: 0.5,
+    21: 0.7,
     22: 1,
     23: 1.5,
     24: 2,
@@ -427,4 +460,13 @@ weight_map = {
     39: 1,
     40: 0.5,
     41: 1.5,
+}
+
+
+weights = {
+    'fr' : 0.4,
+    'en' : 0.4,
+    'java' : 0.05,
+    'python' : 0.05,
+    'md' : 0.1
 }
