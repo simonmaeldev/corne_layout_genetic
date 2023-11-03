@@ -9,8 +9,7 @@ from pyrecorder.recorder import Recorder
 from pyrecorder.writers.video import Video
 from pymoo.visualization.radar import Radar
 import json
-
-
+import csv
 
 from MySampling import MySampling
 from MyCrossover import MyCrossover
@@ -21,19 +20,24 @@ from MyCallback import MyCallback
 from ReferenceKeyboard import qwerty_keyboard
 
 
-algorithm = NSGA2(pop_size=20,
+NB_GEN = 80
+POP_SIZE = 300
+
+
+algorithm = NSGA2(pop_size=POP_SIZE,
                   sampling=MySampling(),
                   crossover=MyCrossover(),
                   mutation=MyMutation(),
                   eliminate_duplicates=MyDuplicateElimination())
 
+callback = MyCallback()
 
 res = minimize(MyProblem(),
                algorithm,
-               ('n_gen', 2),
-               callback = MyCallback(),
+               ('n_gen', NB_GEN),
+               callback = callback,
                seed=1,
-               save_history=True,
+               save_history=False,
                verbose=True)
 
 #Scatter().add(res.F).show()
@@ -72,7 +76,6 @@ def custom_sort(x, f, scores, keys):
 def determine_ideal_nadir_points(X):
     # Initialize ideal and nadir points with extreme values
     flat_list = [item for sublist in X for item in sublist]
-    print(flat_list)
     ideal_point = {}
     nadir_point = {}
     for keyboard in flat_list:
@@ -92,48 +95,104 @@ def determine_ideal_nadir_points(X):
 def tonp(dict):
     return np.array(list(dict.values()))
 
+def print_to_txt(statsX):
+    with open("keyboards.txt", "w") as file:
+        for i, (kbd, statistics) in enumerate(statsX):
+            file.write("\n" + str(i) + "\n")
+            file.write(str(kbd) + "\n")
+            file.write(json.dumps(statistics, indent=4) + "\n")
 
-running = RunningMetricAnimation(delta_gen=250,
-                        n_plots=1,
-                        key_press=False,
-                        do_show=True)
+def write_to_csv(statsX):
+    with open('mon_fichier.csv', 'w', newline='') as fichier_csv:
+        writer = csv.writer(fichier_csv)
+        keys = list(statsX[0][1].keys())
+        writer.writerow(["numero"] + keys)
+        for i, (kbd, statistics) in enumerate(statsX):
+            line = [i] + [statistics[k] for k in keys] + [";".join([kbd.get_char(j) for j in range(42)])]
+            writer.writerow(line)
 
-for algorithm in res.history:
-    running.update(algorithm)
 
+#running = RunningMetricAnimation(delta_gen=NB_GEN,
+#                        n_plots=1,
+#                        key_press=False,
+#                        do_show=True)
+#
+#for algorithm in res.history:
+#    running.update(algorithm)
 
+fig, axs = plt.subplots(4, sharex=True)
+fig.suptitle("Convergence")
+
+axs[0].plot(callback.n_gen, callback.avr_total, label='average')
+axs[0].plot(callback.n_gen, callback.min_total, label='min')
+axs[0].set(ylabel="total_weight")
+
+axs[1].plot(callback.n_gen, callback.avr_sfb, label='average')
+axs[1].plot(callback.n_gen, callback.min_sfb, label='min')
+axs[1].set(ylabel="sfb")
+
+axs[2].plot(callback.n_gen, callback.avr_ratio, label='average')
+axs[2].plot(callback.n_gen, callback.min_ratio, label='min')
+axs[2].set(ylabel="ratio_roll")
+
+#axs[3].plot(callback.n_gen, callback.avr_voisin, label='average')
+#axs[3].plot(callback.n_gen, callback.min_voisin, label='min')
+#axs[3].set(ylabel="voisin_ligne_diff")
+
+axs[3].plot(callback.n_gen, callback.avr_hv, label='average')
+axs[3].plot(callback.n_gen, callback.max_hv, label='max')
+axs[3].set(ylabel="hypervolume")
+
+plt.show()
 
 X, F = res.opt.get("X", "F")
 
 ideal_point, nadir_point = determine_ideal_nadir_points(X)
 
 qwerty_keyboard.evaluate()
-keys = ("total_weight", "sfb","ratio_roll","ratio_voisin_saut")  # Les clés pour le tri
-statsX = [kbd.get_stats() for sublist in X for kbd in sublist]
-X, F = custom_sort(X, F, statsX, keys)
-#X = np.insert(X, 0, qwerty_keyboard, axis=0)
+keys = ("total_weight", "sfb","ratio_roll","voisin_ligne_diff")  # Les clés pour le tri
+statsX = [(kbd, kbd.get_stats()) for sublist in X for kbd in sublist]
 
-with open("keyboards.txt", "w") as file:
-    file.write("qwerty: \nX = \n%s\nstats = %s\n" % (qwerty_keyboard, json.dumps(qwerty_keyboard.get_stats(), indent=4)))
-    file.write("Best solution found: \nX = \n%s\nstats = %s\n" % (X[0][0], json.dumps(statsX[0], indent=4)))
-    file.write("\n========================================\n")
-    X = X[:9]
-    for i,sublist in enumerate(X):
-        file.write("\n" + str(i) + "\n")
-        file.write(str(sublist[0]) + "\n")
-        file.write(json.dumps(sublist[0].get_stats(), indent=4) + "\n")
-keyboards = np.array([tonp(kbd.get_stats()) for sublist in X for kbd in sublist])
-labels = list(X[0][0].get_stats().keys())
-plot = Radar(bounds=[tonp(ideal_point), tonp(nadir_point)], labels=labels)
-start = 0
-end = 3
-while end < keyboards.shape[0]:
-    plot.add(keyboards[start:end])
-    start = end
-    end += 3
-plot.add(keyboards[start:keyboards.shape[0]])
-plot.show()
-plot.save("keyboards.png")
+stats_comp = [(qwerty_keyboard, qwerty_keyboard.get_stats())] + statsX
+
+print_to_txt(stats_comp)
+write_to_csv(stats_comp)
+
+
+coord = [[statistics["total_weight"], statistics["sfb"], statistics["roll_out"]] for _, statistics in stats_comp]
+
+Scatter(legend=True).add(np.array(coord)).show().save("representation.png")
+
+#X, F = custom_sort(X, F, statsX, keys)
+#X = X[:9]
+
+
+
+
+
+
+
+
+#X = np.insert(X, 0, qwerty_keyboard, axis=0)
+#qwerty_keyboard.evaluate()
+#keys = ("total_weight", "sfb","ratio_roll","voisin_ligne_diff")  # Les clés pour le tri
+#statsX = [kbd.get_stats() for sublist in X for kbd in sublist]
+#X, F = custom_sort(X, F, statsX, keys)
+#X = X[:9]
+#print_to_txt(qwerty_keyboard, X, statsX)
+
+#keyboards = np.array([tonp(kbd.get_stats()) for sublist in X for kbd in sublist])
+#labels = list(X[0][0].get_stats().keys())
+#plot = Radar(bounds=[tonp(ideal_point), tonp(nadir_point)], labels=labels)
+#start = 0
+#end = 3
+#while end <= keyboards.shape[0]:
+#    plot.add(keyboards[start:end])
+#    start = end
+#    end += 3
+#plot.add(keyboards[start:keyboards.shape[0]])
+#plot.show()
+#plot.save("keyboards.png")
 
 
 # Créer un dictionnaire pour les titres

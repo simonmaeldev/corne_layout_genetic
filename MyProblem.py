@@ -11,5 +11,5 @@ class MyProblem(ElementwiseProblem):
         keyboard = x[0]
         res = keyboard.evaluate()
 
-        out["F"] = np.array([res["total_weight"], res["sfb"], res["ratio_roll"]], dtype=float)
+        out["F"] = np.array([res["total_weight"], res["sfb"], res["roll_out"]], dtype=float)
         

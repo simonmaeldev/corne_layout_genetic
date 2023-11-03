@@ -191,6 +191,15 @@ class Keyboard():
                                             annulaire += proba
                                     else:
                                         saut_doigt += proba
+                else :
+                    prob_sfb += proba
+                    prob_row_jump += proba
+                    prob_repet += proba
+                    annulaire += proba
+                    roll_out += proba
+                    roll_in += proba
+                    voisins_ligne_diff += proba
+                    saut_doigt += proba
                 prev = next
 
 
@@ -207,6 +216,9 @@ class Keyboard():
                 total += weight
                 if key in index_keys:
                     index += weight
+            else:
+                total += prob * 2
+                index += prob * 2
         return total, index
     
     def evaluate(self):
@@ -245,8 +257,8 @@ class Keyboard():
             "row_jumps" : res_lst[3],
             "repetition" : res_lst[4],
             "annulaire" : res_lst[5],
-            "roll out" : res_lst[6],
-            "roll in" : res_lst[7],
+            "roll_out" : res_lst[6],
+            "roll_in" : res_lst[7],
             "voisin_ligne_diff" : res_lst[8],
             "saut_doigt" : res_lst[9],
             "ratio_roll" : res_lst[10],
@@ -464,9 +476,9 @@ weight_map = {
 
 
 weights = {
-    'fr' : 0.4,
+    'fr' : 0.6,
     'en' : 0.4,
-    'java' : 0.05,
-    'python' : 0.05,
-    'md' : 0.1
+    'java' : 0.0,
+    'python' : 0.0,
+    'md' : 0.0
 }
