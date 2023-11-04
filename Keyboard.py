@@ -220,7 +220,7 @@ class Keyboard():
                 total += prob * 2
                 index += prob * 2
         return total, index
-    
+
     def evaluate(self):
         res = {}
         for language, dict in stats.items():
@@ -427,7 +427,7 @@ keypos_row = {
 comfort_pos = [2, 3, 4, 7, 8, 9, 13, 14, 15, 16, 19, 20, 21, 22, 26, 27, 28, 31, 32, 33]
 home_row = [13, 14, 15, 16, 19, 20, 21, 22]
 voisins_annulaire = [Doigts.AURICULAIRE, Doigts.MAJEUR]
-index_keys = [4, 5, 6, 716, 17, 18, 19, 28, 29, 30, 31]
+index_keys = [4, 5, 6, 7, 16, 17, 18, 19, 28, 29, 30, 31]
 
 weight_map = {
     0: 2,
@@ -482,3 +482,6 @@ weights = {
     'python' : 0.0,
     'md' : 0.0
 }
+
+
+stats = load_no_space_stats()
