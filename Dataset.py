@@ -100,7 +100,7 @@ def replace_key(key):
     if type(key) is tuple:
         key = tuple(replace_dict.get(key_item, key_item) for key_item in key)
     else:
-        key = tuple(replace_dict.get(key, key))
+        key = tuple([replace_dict.get(key, key)])
     return key
 
 def writecsv(path_clean, path_no_space, clean_stats):

@@ -138,134 +138,202 @@ class Keyboard():
     def doigts_voisins(self, hf1, hf2):
         return hf1[1].value == hf2[1].value -1 or hf1[1].value == hf2[1].value +1
 
-    # pour les digrams et trigrams
-    def get_nb_sfb_jump(self, dict):
-        # nombre de lettres différentes qui sont tapées par le même doigt à la suite
-        prob_sfb = 0
-        # si doit utiliser le meme doigt, éviter de sauter une ligne
-        prob_row_jump = 0
-        # repetition de la meme lettre
-        prob_repet = 0
-        # annulaire sur rangée différente du voisin
-        annulaire = 0
-        # roll in / roll out
-        roll_in, roll_out = 0, 0
-        # voisins pas meme ligne / saute doigt
-        voisins_ligne_diff, saut_doigt = 0, 0
+    def all_in_keyboard(self, seq):
+        return all(char in self.char_to_key for char in seq)
 
-        # annulaire sur rangée différente du majeur ou du petit doigt
-        for seq, proba in dict.items():
-            prev = seq[0]
-            for next in seq[1:]:
-                if prev in self.char_to_key and next in self.char_to_key:
-                    # meme caractere 
-                    if prev == next :
-                        if Doigts.MAJEUR == keypos_finger[self.char_to_key[prev]]:
-                            prob_repet += proba /2
-                        else :
-                            prob_repet += proba
-                    else : 
-                        hf_prev = self.char_to_hand_finger[prev]
-                        hf_next = self.char_to_hand_finger[next]
-                        row_prev = keypos_row[self.char_to_key[prev]]
-                        row_next = keypos_row[self.char_to_key[next]]
-                        # meme doigt et meme main
-                        if ( hf_prev == hf_next):
-                            prob_sfb += proba
-                            # on saute la ligne centrale
-                            if (row_prev == Ligne.BAS and row_next == Ligne.HAUT) or (row_prev == Ligne.HAUT and row_next == Ligne.BAS):
-                                prob_row_jump += proba
-                        else :
-                            if self.same_hand(hf_prev, hf_next):
-                                voisins = self.doigts_voisins(hf_prev, hf_next)
-                                if (hf_prev[1].value < hf_next[1].value) :
-                                    roll_out += proba
-                                else : 
-                                    roll_in += proba
-                                
-                                if row_prev != row_next:
-                                    if voisins:
-                                        voisins_ligne_diff += proba
-                                        # on utilise l'annulaire et un autre doigt voisin et ils sont pas sur la meme ligne
-                                        if (hf_prev[1] == Doigts.ANNULAIRE or hf_next[1] == Doigts.ANNULAIRE):
-                                            annulaire += proba
-                                    else:
-                                        saut_doigt += proba
+    def is_same_hand(self, hf1, hf2):
+        return hf1[0] == hf2[0]
+
+    def is_sfb(self, hf1, hf2):
+        return hf1 == hf2
+
+    def record_rolls(self, keyboard_stats, roll_seq, roll_hf, proba_by_char):
+        ro = False
+        if roll_seq:
+            roll_str = ""
+            if roll_seq.count(roll_seq[0]) == len(roll_seq):
+                # c'est tout le temps le meme roll dans ma liste
+                roll = roll_seq[0]
+                if roll == Roll.IN:
+                    roll_str = "roll_in"
                 else :
-                    prob_sfb += proba
-                    prob_row_jump += proba
-                    prob_repet += proba
-                    annulaire += proba
-                    roll_out += proba
-                    roll_in += proba
-                    voisins_ligne_diff += proba
-                    saut_doigt += proba
-                prev = next
+                    roll_str = "roll_out"
+                    ro = True
+            else :
+                # si il y a plusieurs rolls différents c'est que c'est un redirect
+                roll_str = "redirect"
+                ro = True
+            for hf in roll_hf:
+                keyboard_stats[roll_str][hf] += proba_by_char
+        return ro
+                
 
-
-        return prob_sfb, prob_row_jump, prob_repet, annulaire, roll_out, roll_in, voisins_ligne_diff, saut_doigt
+    def get_stats_grams(self, dict):
+        # init
+        keyboard_stats = {
+            "sfb" : {}, # doit utiliser le même doigt pour taper sur 2 touches différentes à la suite. On en veut pas
+            "row_jump": {}, # doit sauter la ligne du milieu entre 2 utilisations de la même main (même si l'autre main a été utilisée entre temps). On en veut pas
+            "repet" : {}, # probabilité de répéter la même touche
+            "roll_in": {}, # deux touches ou plus qui utilisent de facon consécutive des doigts de la même main, vers l'index. ex : sd, ast
+            "roll_out": {}, # même chose, mais vers le petit doigt. On en veut pas
+            "redirect": {}, # commence un roll dans un sens puis va dans l'autre sens. ex : sfd. On en veut pas
+            "ligne_diff": {}, # deux doigts voisins qui sont pas sur la même ligne
+            "saut_doigt": {}, # dans un roll, les doigts utilisés ne sont pas tous voisins. Ex : sf
+            "alternate" : {}, # on alterne entre les deux mains
+        }
+        not_present = {}
+        weakness = {}
+        for empty_dict in keyboard_stats.values():
+            for main in Main:
+                for doigt in Doigts:
+                    empty_dict[(main, doigt)] = 0
+        # calcul
+        for seq, proba in dict.items():
+            if self.all_in_keyboard(seq):
+                prev = seq[0]
+                last = {Main.GAUCHE : None, Main.DROITE : None}
+                roll_seq = []
+                roll_hf = []
+                last_hf = None
+                current_hf = None
+                rj = False
+                ro = False
+                ld = False
+                for next in seq[1:]:
+                    last_hf = self.char_to_hand_finger[prev]
+                    last[last_hf[0]] = last_hf[1]
+                    current_hf = self.char_to_hand_finger[next]
+                    roll_hf.append(last_hf)
+                    # section 2 appuis consécutifs
+                    if self.is_same_hand(last_hf, current_hf):
+                        if prev == next :
+                            keyboard_stats["repet"][last_hf] += proba
+                        elif self.is_sfb(last_hf, current_hf):
+                                keyboard_stats["sfb"][last_hf] += proba
+                        else :
+                            # meme main, pas meme lettre et pas sfb : c'est un roll
+                            current_roll = None
+                            if last_hf[1].value < current_hf[1].value:
+                                current_roll = Roll.OUT
+                            else:
+                                current_roll = Roll.IN
+                            roll_seq.append(current_roll)
+                            if not self.doigts_voisins(last_hf, current_hf):
+                                keyboard_stats["saut_doigt"][last_hf] += proba
+                                keyboard_stats["saut_doigt"][current_hf] += proba
+                    else : 
+                        keyboard_stats["alternate"][last_hf] += proba
+                        keyboard_stats["alternate"][current_hf] += proba
+                        # enregistre les rolls si il y en a
+                        ro = self.record_rolls(keyboard_stats, roll_seq, roll_hf, proba / len(seq)) or ro
+                        roll_seq = []
+                        roll_hf = []
+                    # section comparaison avec le dernier de la même main
+                    if last[current_hf[0]] != None:
+                        last_row = hand_finger_to_row[last[current_hf[0]]]
+                        current_row = hand_finger_to_row[current_hf]
+                        if last_row != Ligne.POUCE and current_row != Ligne.POUCE:
+                            if last_row != current_row and self.doigts_voisins(last[current_hf[0]], current_hf):
+                                keyboard_stats["ligne_diff"][last[current_hf[0]]] += proba
+                                keyboard_stats["ligne_diff"][current_hf] += proba
+                                ld = True
+                        if abs(last_row.value - current_row.value) > 1:
+                                keyboard_stats["row_jump"][last[current_hf[0]]] += proba
+                                keyboard_stats["row_jump"][current_hf] += proba
+                                rj = True
+                    prev = next
+                ro = self.record_rolls(keyboard_stats, roll_seq, roll_hf, proba / len(seq)) or ro
+                if proba > 0.2 and (rj or (ro and ld)) :
+                    weakness[seq] = proba
+            else :
+                not_present[seq] = proba
+        return keyboard_stats, not_present, weakness
 
     # pour les monograms uniquement
     def weight_proba(self, dict):
-        total = 0
-        index = 0
+        weight_by_finger = {}
+        not_present = {}
+        total_weight = 0
+        for main in Main:
+            for doigt in Doigts:
+                weight_by_finger[(main, doigt)] = 0
         for char, prob in dict.items():
             if char in self.char_to_key:
-                key = self.char_to_key[char]
-                weight = weight_map[key] * prob
-                total += weight
-                if key in index_keys:
-                    index += weight
+                weight_by_finger[self.char_to_hand_finger[char]] += prob
+                total_weight += prob * weight_map[self.char_to_key[char]]
             else:
-                total += prob * 2
-                index += prob * 2
-        return total, index
+                not_present[char] = prob
+        return weight_by_finger, not_present, total_weight
+
+
+    def merge_dict(self, dict1, dict2, weight=1):
+        merged_dict = dict1.copy()  # Crée une copie de dict1 pour ne pas modifier l'original
+        for key, value in dict2.items():
+            if key in merged_dict:
+                merged_dict[key] += value * weight
+            else:
+                merged_dict[key] = value * weight
+        return merged_dict
 
     def evaluate(self):
-        res = {}
-        for language, dict in stats.items():
-            res2 = self.get_nb_sfb_jump(dict[2])
-            res3 = self.get_nb_sfb_jump(dict[3])
-            sum_23 = list(map(lambda x, y: x + y, res2, res3))
-            roll_out = sum_23[4]
-            roll_in = sum_23[5]
-            voisins_ligne_diff = sum_23[6]
-            saut_doigt = sum_23[7]
-            ratio_roll = 0
-            ratio_voisin_saut = 0
-
-            if roll_out != 0:
-                if roll_in == 0:
-                    ratio_roll = float('inf')
-                else:
-                    ratio_roll = roll_out / roll_in
-            if voisins_ligne_diff != 0:
-                if saut_doigt == 0:
-                    ratio_voisin_saut = float('inf')
-                else:
-                    ratio_voisin_saut = voisins_ligne_diff / saut_doigt
-            res[language] = list(self.weight_proba(dict[1])) + sum_23 + [ratio_roll, ratio_voisin_saut]
-        self.full_stats = res
-        res_lst = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        for language, values in res.items():
-            for i, val in enumerate(values):
-                res_lst[i] += weights[language] * val
-        stats_final = {
-            "total_weight" : res_lst[0],
-            "index" : res_lst[1],
-            "sfb" : res_lst[2],
-            "row_jumps" : res_lst[3],
-            "repetition" : res_lst[4],
-            "annulaire" : res_lst[5],
-            "roll_out" : res_lst[6],
-            "roll_in" : res_lst[7],
-            "voisin_ligne_diff" : res_lst[8],
-            "saut_doigt" : res_lst[9],
-            "ratio_roll" : res_lst[10],
-            "ratio_voisin_saut" : res_lst[11]
+        # full detailled stats
+        detailled_stats = {}
+        res_stats = {
+            "total_weight": 0,
+            "total_weighted_weakness": 0,
+            "total_sfb": 0,
+            "left_min": 0,
+            "left_max": 0,
+            "right_min": 0,
+            "right_max": 0,
+            "total_left": 0,
+            "total_right": 0,
+            "sfb_left_max": 0,
+            "sfb_left_min": 0,
+            "sfb_right_max": 0,
+            "sfb_right_min": 0,
         }
-        self.set_stats(stats_final)
-        return stats_final
+        sum_hf = {}
+        sfb_hf = {}
+        for language, dict in stats.items():
+            # detailled stats
+            weight_by_finger, not_present1, total_weight = self.weight_proba(dict[1])
+            keyboard_stats2, not_present2, weakness2 = self.get_stats_grams(dict[2])
+            keyboard_stats3, not_present3, weakness3 = self.get_stats_grams(dict[3])
+            not_present = self.merge_dict(not_present1, self.merge_dict(not_present2, not_present3))
+            weakness = self.merge_dict(weakness2, weakness3)
+            keyboard_stats = {}
+            for key in keyboard_stats2:
+                keyboard_stats[key] = self.merge_dict(keyboard_stats2[key], keyboard_stats3[key])
+            detailled_stats[language] = {
+                "weight_by_finger": weight_by_finger,
+                "keyboard_detailled_stats": keyboard_stats,
+                "not_present": not_present,
+                "weakness": weakness,
+                "total_weight" : total_weight,
+            }
+            # res stats
+            weight_l = weights[language]
+            res_stats["total_weight"] += weight_l * total_weight
+            res_stats["total_weighted_weakness"] += weight_l * sum(weight_map[self.char_to_key[char]] * value/len(seq) for seq, value in weakness.items() for char in seq)
+            res_stats["total_sfb"] += weight_l * sum(value for value in keyboard_stats["sfb"].values())
+            sum_hf = self.merge_dict(sum_hf, weight_by_finger, weight_l)
+            sfb_hf = self.merge_dict(sfb_hf, keyboard_stats["sfb"], weight_l)
+
+        res_stats["left_min"] = min(sum_hf[(Main.GAUCHE, Doigts.INDEX)], sum_hf[(Main.GAUCHE, Doigts.MAJEUR)])
+        res_stats["left_max"] = max(sum_hf[(Main.GAUCHE, Doigts.AURICULAIRE)], sum_hf[(Main.GAUCHE, Doigts.ANNULAIRE)])
+        res_stats["right_min"] = min(sum_hf[(Main.DROITE, Doigts.INDEX)], sum_hf[(Main.DROITE, Doigts.MAJEUR)])
+        res_stats["right_max"] = max(sum_hf[(Main.DROITE, Doigts.AURICULAIRE)], sum_hf[(Main.DROITE, Doigts.ANNULAIRE)])
+        res_stats["sfb_left_min"] = min(sfb_hf[(Main.GAUCHE, Doigts.INDEX)], sfb_hf[(Main.GAUCHE, Doigts.MAJEUR)])
+        res_stats["sfb_left_max"] = max(sfb_hf[(Main.GAUCHE, Doigts.AURICULAIRE)], sfb_hf[(Main.GAUCHE, Doigts.ANNULAIRE)])
+        res_stats["sfb_right_min"] = min(sfb_hf[(Main.DROITE, Doigts.INDEX)], sfb_hf[(Main.DROITE, Doigts.MAJEUR)])
+        res_stats["sfb_right_max"] = max(sfb_hf[(Main.DROITE, Doigts.AURICULAIRE)], sfb_hf[(Main.DROITE, Doigts.ANNULAIRE)])
+        res_stats["total_left"] = sum(value for hf, value in sum_hf.items() if hf[0] == Main.GAUCHE)
+        res_stats["total_right"] = sum(value for hf, value in sum_hf.items() if hf[0] == Main.DROITE)
+
+        self.full_stats = detailled_stats
+        self.set_stats(res_stats)
+        return res_stats
     
     def __str__(self):
         sorted_keys = sorted(self.key_to_char.keys())
@@ -287,6 +355,11 @@ class Doigts(Enum):
 class Main(Enum):
     GAUCHE = 0
     DROITE = 1
+
+class Roll(Enum):
+    IN = 0
+    OUT = 1
+    REDIRECT = 2
 
 # mis en dur pour un soucis d'optimisation comme on va souvent y avoir accès
 keypos_hand = {
@@ -424,54 +497,112 @@ keypos_row = {
     41: Ligne.POUCE
 }
 
+
+for key in range(42):
+    hf = (keypos_hand[key], keypos_finger[key])
+    print(str(key) + ": " + str(hf) + ",\n")
+
+
+hand_finger_to_key = {
+    (Main.GAUCHE, Doigts.AURICULAIRE): 0,
+    (Main.GAUCHE, Doigts.AURICULAIRE): 1,
+    (Main.GAUCHE, Doigts.ANNULAIRE): 2,
+    (Main.GAUCHE, Doigts.MAJEUR): 3,
+    (Main.GAUCHE, Doigts.INDEX): 4,
+    (Main.GAUCHE, Doigts.INDEX): 5,
+    (Main.DROITE, Doigts.INDEX): 6,
+    (Main.DROITE, Doigts.INDEX): 7,
+    (Main.DROITE, Doigts.MAJEUR): 8,
+    (Main.DROITE, Doigts.ANNULAIRE): 9,
+    (Main.DROITE, Doigts.AURICULAIRE): 10,
+    (Main.DROITE, Doigts.AURICULAIRE): 11,
+    (Main.GAUCHE, Doigts.AURICULAIRE): 12,
+    (Main.GAUCHE, Doigts.AURICULAIRE): 13,
+    (Main.GAUCHE, Doigts.ANNULAIRE): 14,
+    (Main.GAUCHE, Doigts.MAJEUR): 15,
+    (Main.GAUCHE, Doigts.INDEX): 16,
+    (Main.GAUCHE, Doigts.INDEX): 17,
+    (Main.DROITE, Doigts.INDEX): 18,
+    (Main.DROITE, Doigts.INDEX): 19,
+    (Main.DROITE, Doigts.MAJEUR): 20,
+    (Main.DROITE, Doigts.ANNULAIRE): 21,
+    (Main.DROITE, Doigts.AURICULAIRE): 22,
+    (Main.DROITE, Doigts.AURICULAIRE): 23,
+    (Main.GAUCHE, Doigts.AURICULAIRE): 24,
+    (Main.GAUCHE, Doigts.AURICULAIRE): 25,
+    (Main.GAUCHE, Doigts.ANNULAIRE): 26,
+    (Main.GAUCHE, Doigts.MAJEUR): 27,
+    (Main.GAUCHE, Doigts.INDEX): 28,
+    (Main.GAUCHE, Doigts.INDEX): 29,
+    (Main.DROITE, Doigts.INDEX): 30,
+    (Main.DROITE, Doigts.INDEX): 31,
+    (Main.DROITE, Doigts.MAJEUR): 32,
+    (Main.DROITE, Doigts.ANNULAIRE): 33,
+    (Main.DROITE, Doigts.AURICULAIRE): 34,
+    (Main.DROITE, Doigts.AURICULAIRE): 35,
+    (Main.GAUCHE, Doigts.POUCE): 36,
+    (Main.GAUCHE, Doigts.POUCE): 37,
+    (Main.GAUCHE, Doigts.POUCE): 38,
+    (Main.DROITE, Doigts.POUCE): 39,
+    (Main.DROITE, Doigts.POUCE): 40,
+    (Main.DROITE, Doigts.POUCE): 41,
+}
+
+hand_finger_to_row = {
+    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.HAUT,
+    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.HAUT,
+    (Main.GAUCHE, Doigts.ANNULAIRE): Ligne.HAUT,
+    (Main.GAUCHE, Doigts.MAJEUR): Ligne.HAUT,
+    (Main.GAUCHE, Doigts.INDEX): Ligne.HAUT,
+    (Main.GAUCHE, Doigts.INDEX): Ligne.HAUT,
+    (Main.DROITE, Doigts.INDEX): Ligne.HAUT,
+    (Main.DROITE, Doigts.INDEX): Ligne.HAUT,
+    (Main.DROITE, Doigts.MAJEUR): Ligne.HAUT,
+    (Main.DROITE, Doigts.ANNULAIRE): Ligne.HAUT,
+    (Main.DROITE, Doigts.AURICULAIRE): Ligne.HAUT,
+    (Main.DROITE, Doigts.AURICULAIRE): Ligne.HAUT,
+    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.MILIEU,
+    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.MILIEU,
+    (Main.GAUCHE, Doigts.ANNULAIRE): Ligne.MILIEU,
+    (Main.GAUCHE, Doigts.MAJEUR): Ligne.MILIEU,
+    (Main.GAUCHE, Doigts.INDEX): Ligne.MILIEU,
+    (Main.GAUCHE, Doigts.INDEX): Ligne.MILIEU,
+    (Main.DROITE, Doigts.INDEX): Ligne.MILIEU,
+    (Main.DROITE, Doigts.INDEX): Ligne.MILIEU,
+    (Main.DROITE, Doigts.MAJEUR): Ligne.MILIEU,
+    (Main.DROITE, Doigts.ANNULAIRE): Ligne.MILIEU,
+    (Main.DROITE, Doigts.AURICULAIRE): Ligne.MILIEU,
+    (Main.DROITE, Doigts.AURICULAIRE): Ligne.MILIEU,
+    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.BAS,
+    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.BAS,
+    (Main.GAUCHE, Doigts.ANNULAIRE): Ligne.BAS,
+    (Main.GAUCHE, Doigts.MAJEUR): Ligne.BAS,
+    (Main.GAUCHE, Doigts.INDEX): Ligne.BAS,
+    (Main.GAUCHE, Doigts.INDEX): Ligne.BAS,
+    (Main.DROITE, Doigts.INDEX): Ligne.BAS,
+    (Main.DROITE, Doigts.INDEX): Ligne.BAS,
+    (Main.DROITE, Doigts.MAJEUR): Ligne.BAS,
+    (Main.DROITE, Doigts.ANNULAIRE): Ligne.BAS,
+    (Main.DROITE, Doigts.AURICULAIRE): Ligne.BAS,
+    (Main.DROITE, Doigts.AURICULAIRE): Ligne.BAS,
+    (Main.GAUCHE, Doigts.POUCE): Ligne.POUCE,
+    (Main.GAUCHE, Doigts.POUCE): Ligne.POUCE,
+    (Main.GAUCHE, Doigts.POUCE): Ligne.POUCE,
+    (Main.DROITE, Doigts.POUCE): Ligne.POUCE,
+    (Main.DROITE, Doigts.POUCE): Ligne.POUCE,
+    (Main.DROITE, Doigts.POUCE): Ligne.POUCE,
+}
+
 comfort_pos = [2, 3, 4, 7, 8, 9, 13, 14, 15, 16, 19, 20, 21, 22, 26, 27, 28, 31, 32, 33]
 home_row = [13, 14, 15, 16, 19, 20, 21, 22]
 voisins_annulaire = [Doigts.AURICULAIRE, Doigts.MAJEUR]
 index_keys = [4, 5, 6, 7, 16, 17, 18, 19, 28, 29, 30, 31]
 
 weight_map = {
-    0: 2,
-    1: 1.5,
-    2: 1,
-    3: 1,
-    4: 1,
-    5: 1.5,
-    6: 1.5,
-    7: 1,
-    8: 1,
-    9: 1,
-    10: 1.5,
-    11: 2,
-    12: 1.5,
-    13: 1,
-    14: 0.7,
-    15: 0.5,
-    16: 0.5,
-    17: 1,
-    18: 1,
-    19: 0.5,
-    20: 0.5,
-    21: 0.7,
-    22: 1,
-    23: 1.5,
-    24: 2,
-    25: 1.5,
-    26: 1,
-    27: 1,
-    28: 1,
-    29: 1.5,
-    30: 1.5,
-    31: 1,
-    32: 1,
-    33: 1,
-    34: 1.5,
-    35: 2,
-    36: 1.5,
-    37: 0.5,
-    38: 1,
-    39: 1,
-    40: 0.5,
-    41: 1.5,
+     0: 2.5,  1: 2,    2: 1,    3: 1,    4: 1,    5: 1.5,  6: 1.5,  7: 1,    8: 1,    9: 1.2, 10: 2,   11: 2.5,
+    12: 2,   13: 1.5, 14: 0.7, 15: 0.5, 16: 0.5, 17: 1,   18: 1,   19: 0.5, 20: 0.5, 21: 0.7, 22: 1.5, 23: 2,
+    24: 2.5, 25: 2,   26: 1,   27: 1,   28: 1,   29: 1.5, 30: 1.5, 31: 1,   32: 1,   33: 1.2, 34: 2,   35: 2.5,
+                               36: 1.5, 37: 0.5, 38: 1,   39: 1,   40: 0.5, 41: 1.5,
 }
 
 
