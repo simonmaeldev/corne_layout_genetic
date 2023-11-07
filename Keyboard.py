@@ -201,7 +201,7 @@ class Keyboard():
                 ld = False
                 for next in seq[1:]:
                     last_hf = self.char_to_hand_finger[prev]
-                    last[last_hf[0]] = last_hf[1]
+                    last[last_hf[0]] = self.char_to_key[prev]
                     current_hf = self.char_to_hand_finger[next]
                     roll_hf.append(last_hf)
                     # section 2 appuis consécutifs
@@ -230,20 +230,22 @@ class Keyboard():
                         roll_hf = []
                     # section comparaison avec le dernier de la même main
                     if last[current_hf[0]] != None:
-                        last_row = hand_finger_to_row[last[current_hf[0]]]
-                        current_row = hand_finger_to_row[current_hf]
+                        last_row = keypos_row[last[current_hf[0]]]
+                        next_key = self.char_to_key[next]
+                        current_row = keypos_row[next_key]
+                        reconstructed = (current_hf[0], keypos_finger[last[current_hf[0]]])
                         if last_row != Ligne.POUCE and current_row != Ligne.POUCE:
-                            if last_row != current_row and self.doigts_voisins(last[current_hf[0]], current_hf):
-                                keyboard_stats["ligne_diff"][last[current_hf[0]]] += proba
+                            if last_row != current_row and self.doigts_voisins(reconstructed, current_hf):
+                                keyboard_stats["ligne_diff"][reconstructed] += proba
                                 keyboard_stats["ligne_diff"][current_hf] += proba
                                 ld = True
                         if abs(last_row.value - current_row.value) > 1:
-                                keyboard_stats["row_jump"][last[current_hf[0]]] += proba
+                                keyboard_stats["row_jump"][reconstructed] += proba
                                 keyboard_stats["row_jump"][current_hf] += proba
                                 rj = True
                     prev = next
                 ro = self.record_rolls(keyboard_stats, roll_seq, roll_hf, proba / len(seq)) or ro
-                if proba > 0.2 and (rj or (ro and ld)) :
+                if rj or (ro and ld) : #proba > 0.2 and (
                     weakness[seq] = proba
             else :
                 not_present[seq] = proba
@@ -279,6 +281,7 @@ class Keyboard():
         # full detailled stats
         detailled_stats = {}
         res_stats = {
+            # convergence
             "total_weight": 0,
             "total_weighted_weakness": 0,
             "total_sfb": 0,
@@ -292,14 +295,37 @@ class Keyboard():
             "sfb_left_min": 0,
             "sfb_right_max": 0,
             "sfb_right_min": 0,
+            "jump_auri": 0,
+            "diff_annu": 0,
+            "sfb_auri": 0,
+            "sfb_annu": 0,
+            "total_alternate": 0,
+            "total_saut_doigt": 0,
+            "total_ligne_diff": 0,
+            "total_row_jump": 0,
+            "total_roll_in": 0,
+            "total_roll_out": 0,
+            "total_redirect": 0,
         }
         sum_hf = {}
         sfb_hf = {}
+        roll_in_hf = {}
+        roll_out_hf = {}
+        row_jump_hf = {}
+        repet_hf = {}
+        ligne_diff_hf = {}
+        total_alternate = 0
+        total_saut_doigt = 0
+        total_ligne_diff = 0
+        total_row_jump = 0
+        total_roll_in = 0
+        total_roll_out = 0
+        total_redirect = 0
         for language, dict in stats.items():
             # detailled stats
-            weight_by_finger, not_present1, total_weight = self.weight_proba(dict[1])
-            keyboard_stats2, not_present2, weakness2 = self.get_stats_grams(dict[2])
             keyboard_stats3, not_present3, weakness3 = self.get_stats_grams(dict[3])
+            keyboard_stats2, not_present2, weakness2 = self.get_stats_grams(dict[2])
+            weight_by_finger, not_present1, total_weight = self.weight_proba(dict[1])
             not_present = self.merge_dict(not_present1, self.merge_dict(not_present2, not_present3))
             weakness = self.merge_dict(weakness2, weakness3)
             keyboard_stats = {}
@@ -316,9 +342,21 @@ class Keyboard():
             weight_l = weights[language]
             res_stats["total_weight"] += weight_l * total_weight
             res_stats["total_weighted_weakness"] += weight_l * sum(weight_map[self.char_to_key[char]] * value/len(seq) for seq, value in weakness.items() for char in seq)
-            res_stats["total_sfb"] += weight_l * sum(value for value in keyboard_stats["sfb"].values())
+            res_stats["total_sfb"] += weight_l * sum(keyboard_stats["sfb"].values())
             sum_hf = self.merge_dict(sum_hf, weight_by_finger, weight_l)
             sfb_hf = self.merge_dict(sfb_hf, keyboard_stats["sfb"], weight_l)
+            roll_in_hf = self.merge_dict(roll_in_hf, keyboard_stats["roll_in"], weight_l)
+            roll_out_hf = self.merge_dict(roll_out_hf, keyboard_stats["roll_out"], weight_l)
+            row_jump_hf = self.merge_dict(row_jump_hf, keyboard_stats["row_jump"], weight_l)
+            repet_hf = self.merge_dict(repet_hf, keyboard_stats["repet"], weight_l)
+            ligne_diff_hf = self.merge_dict(ligne_diff_hf, keyboard_stats["ligne_diff"], weight_l)
+            total_alternate += weight_l * sum(keyboard_stats["alternate"].values()) / 2
+            total_saut_doigt += weight_l * sum(keyboard_stats["saut_doigt"].values()) / 2
+            total_ligne_diff += weight_l * sum(keyboard_stats["ligne_diff"].values()) / 2
+            total_row_jump += weight_l * sum(keyboard_stats["row_jump"].values()) / 2
+            total_roll_in += weight_l * sum(keyboard_stats["roll_in"].values())
+            total_roll_out += weight_l * sum(keyboard_stats["roll_out"].values())
+            total_redirect += weight_l * sum(keyboard_stats["redirect"].values())
 
         res_stats["left_min"] = min(sum_hf[(Main.GAUCHE, Doigts.INDEX)], sum_hf[(Main.GAUCHE, Doigts.MAJEUR)])
         res_stats["left_max"] = max(sum_hf[(Main.GAUCHE, Doigts.AURICULAIRE)], sum_hf[(Main.GAUCHE, Doigts.ANNULAIRE)])
@@ -330,6 +368,33 @@ class Keyboard():
         res_stats["sfb_right_max"] = max(sfb_hf[(Main.DROITE, Doigts.AURICULAIRE)], sfb_hf[(Main.DROITE, Doigts.ANNULAIRE)])
         res_stats["total_left"] = sum(value for hf, value in sum_hf.items() if hf[0] == Main.GAUCHE)
         res_stats["total_right"] = sum(value for hf, value in sum_hf.items() if hf[0] == Main.DROITE)
+        res_stats["jump_auri"] = keyboard_stats["row_jump"][(Main.GAUCHE, Doigts.AURICULAIRE)] + keyboard_stats["row_jump"][(Main.DROITE, Doigts.AURICULAIRE)]
+        res_stats["diff_annu"] = keyboard_stats["ligne_diff"][(Main.GAUCHE, Doigts.ANNULAIRE)] + keyboard_stats["ligne_diff"][(Main.DROITE, Doigts.ANNULAIRE)]
+        res_stats["sfb_auri"] = keyboard_stats["sfb"][(Main.GAUCHE, Doigts.AURICULAIRE)] + keyboard_stats["sfb"][(Main.DROITE, Doigts.AURICULAIRE)]
+        res_stats["sfb_annu"] = keyboard_stats["sfb"][(Main.GAUCHE, Doigts.ANNULAIRE)] + keyboard_stats["sfb"][(Main.DROITE, Doigts.ANNULAIRE)]
+        res_stats["sfb_maj"] = keyboard_stats["sfb"][(Main.GAUCHE, Doigts.MAJEUR)] + keyboard_stats["sfb"][(Main.DROITE, Doigts.MAJEUR)]
+        res_stats["sfb_ind"] = keyboard_stats["sfb"][(Main.GAUCHE, Doigts.INDEX)] + keyboard_stats["sfb"][(Main.DROITE, Doigts.INDEX)]
+        res_stats["missing"] = "; ".join(str(k) for k in not_present.keys())
+        res_stats["weakness"] = "; ".join(str(k) for k in weakness.keys())
+
+        res_stats["total_alternate"] = total_alternate
+        res_stats["total_saut_doigt"] = total_saut_doigt
+        res_stats["total_ligne_diff"] = total_ligne_diff
+        res_stats["total_row_jump"] = total_row_jump
+        res_stats["total_roll_in"] = total_roll_in
+        res_stats["total_roll_out"] = total_roll_out
+        res_stats["ratio_roll"] = total_roll_out / total_roll_in
+        res_stats["total_redirect"] = total_redirect
+
+        for hf in sum_hf:
+            if hf[1] != Doigts.POUCE:
+                res_stats[hf[0].name[0] + "_" + hf[1].name] = sum_hf[hf]
+                res_stats["sfb_" + hf[0].name[0] + "_" + hf[1].name] = sfb_hf[hf]
+                res_stats["roll_in_" + hf[0].name[0] + "_" + hf[1].name] = roll_in_hf[hf]
+                res_stats["roll_out_" + hf[0].name[0] + "_" + hf[1].name] = roll_out_hf[hf]
+                res_stats["row_jump_" + hf[0].name[0] + "_" + hf[1].name] = row_jump_hf[hf]
+                res_stats["repet_" + hf[0].name[0] + "_" + hf[1].name] = repet_hf[hf]
+                res_stats["ligne_diff_" + hf[0].name[0] + "_" + hf[1].name] = ligne_diff_hf[hf]
 
         self.full_stats = detailled_stats
         self.set_stats(res_stats)
@@ -497,122 +562,26 @@ keypos_row = {
     41: Ligne.POUCE
 }
 
-
-for key in range(42):
-    hf = (keypos_hand[key], keypos_finger[key])
-    print(str(key) + ": " + str(hf) + ",\n")
-
-
-hand_finger_to_key = {
-    (Main.GAUCHE, Doigts.AURICULAIRE): 0,
-    (Main.GAUCHE, Doigts.AURICULAIRE): 1,
-    (Main.GAUCHE, Doigts.ANNULAIRE): 2,
-    (Main.GAUCHE, Doigts.MAJEUR): 3,
-    (Main.GAUCHE, Doigts.INDEX): 4,
-    (Main.GAUCHE, Doigts.INDEX): 5,
-    (Main.DROITE, Doigts.INDEX): 6,
-    (Main.DROITE, Doigts.INDEX): 7,
-    (Main.DROITE, Doigts.MAJEUR): 8,
-    (Main.DROITE, Doigts.ANNULAIRE): 9,
-    (Main.DROITE, Doigts.AURICULAIRE): 10,
-    (Main.DROITE, Doigts.AURICULAIRE): 11,
-    (Main.GAUCHE, Doigts.AURICULAIRE): 12,
-    (Main.GAUCHE, Doigts.AURICULAIRE): 13,
-    (Main.GAUCHE, Doigts.ANNULAIRE): 14,
-    (Main.GAUCHE, Doigts.MAJEUR): 15,
-    (Main.GAUCHE, Doigts.INDEX): 16,
-    (Main.GAUCHE, Doigts.INDEX): 17,
-    (Main.DROITE, Doigts.INDEX): 18,
-    (Main.DROITE, Doigts.INDEX): 19,
-    (Main.DROITE, Doigts.MAJEUR): 20,
-    (Main.DROITE, Doigts.ANNULAIRE): 21,
-    (Main.DROITE, Doigts.AURICULAIRE): 22,
-    (Main.DROITE, Doigts.AURICULAIRE): 23,
-    (Main.GAUCHE, Doigts.AURICULAIRE): 24,
-    (Main.GAUCHE, Doigts.AURICULAIRE): 25,
-    (Main.GAUCHE, Doigts.ANNULAIRE): 26,
-    (Main.GAUCHE, Doigts.MAJEUR): 27,
-    (Main.GAUCHE, Doigts.INDEX): 28,
-    (Main.GAUCHE, Doigts.INDEX): 29,
-    (Main.DROITE, Doigts.INDEX): 30,
-    (Main.DROITE, Doigts.INDEX): 31,
-    (Main.DROITE, Doigts.MAJEUR): 32,
-    (Main.DROITE, Doigts.ANNULAIRE): 33,
-    (Main.DROITE, Doigts.AURICULAIRE): 34,
-    (Main.DROITE, Doigts.AURICULAIRE): 35,
-    (Main.GAUCHE, Doigts.POUCE): 36,
-    (Main.GAUCHE, Doigts.POUCE): 37,
-    (Main.GAUCHE, Doigts.POUCE): 38,
-    (Main.DROITE, Doigts.POUCE): 39,
-    (Main.DROITE, Doigts.POUCE): 40,
-    (Main.DROITE, Doigts.POUCE): 41,
-}
-
-hand_finger_to_row = {
-    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.HAUT,
-    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.HAUT,
-    (Main.GAUCHE, Doigts.ANNULAIRE): Ligne.HAUT,
-    (Main.GAUCHE, Doigts.MAJEUR): Ligne.HAUT,
-    (Main.GAUCHE, Doigts.INDEX): Ligne.HAUT,
-    (Main.GAUCHE, Doigts.INDEX): Ligne.HAUT,
-    (Main.DROITE, Doigts.INDEX): Ligne.HAUT,
-    (Main.DROITE, Doigts.INDEX): Ligne.HAUT,
-    (Main.DROITE, Doigts.MAJEUR): Ligne.HAUT,
-    (Main.DROITE, Doigts.ANNULAIRE): Ligne.HAUT,
-    (Main.DROITE, Doigts.AURICULAIRE): Ligne.HAUT,
-    (Main.DROITE, Doigts.AURICULAIRE): Ligne.HAUT,
-    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.MILIEU,
-    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.MILIEU,
-    (Main.GAUCHE, Doigts.ANNULAIRE): Ligne.MILIEU,
-    (Main.GAUCHE, Doigts.MAJEUR): Ligne.MILIEU,
-    (Main.GAUCHE, Doigts.INDEX): Ligne.MILIEU,
-    (Main.GAUCHE, Doigts.INDEX): Ligne.MILIEU,
-    (Main.DROITE, Doigts.INDEX): Ligne.MILIEU,
-    (Main.DROITE, Doigts.INDEX): Ligne.MILIEU,
-    (Main.DROITE, Doigts.MAJEUR): Ligne.MILIEU,
-    (Main.DROITE, Doigts.ANNULAIRE): Ligne.MILIEU,
-    (Main.DROITE, Doigts.AURICULAIRE): Ligne.MILIEU,
-    (Main.DROITE, Doigts.AURICULAIRE): Ligne.MILIEU,
-    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.BAS,
-    (Main.GAUCHE, Doigts.AURICULAIRE): Ligne.BAS,
-    (Main.GAUCHE, Doigts.ANNULAIRE): Ligne.BAS,
-    (Main.GAUCHE, Doigts.MAJEUR): Ligne.BAS,
-    (Main.GAUCHE, Doigts.INDEX): Ligne.BAS,
-    (Main.GAUCHE, Doigts.INDEX): Ligne.BAS,
-    (Main.DROITE, Doigts.INDEX): Ligne.BAS,
-    (Main.DROITE, Doigts.INDEX): Ligne.BAS,
-    (Main.DROITE, Doigts.MAJEUR): Ligne.BAS,
-    (Main.DROITE, Doigts.ANNULAIRE): Ligne.BAS,
-    (Main.DROITE, Doigts.AURICULAIRE): Ligne.BAS,
-    (Main.DROITE, Doigts.AURICULAIRE): Ligne.BAS,
-    (Main.GAUCHE, Doigts.POUCE): Ligne.POUCE,
-    (Main.GAUCHE, Doigts.POUCE): Ligne.POUCE,
-    (Main.GAUCHE, Doigts.POUCE): Ligne.POUCE,
-    (Main.DROITE, Doigts.POUCE): Ligne.POUCE,
-    (Main.DROITE, Doigts.POUCE): Ligne.POUCE,
-    (Main.DROITE, Doigts.POUCE): Ligne.POUCE,
-}
-
 comfort_pos = [2, 3, 4, 7, 8, 9, 13, 14, 15, 16, 19, 20, 21, 22, 26, 27, 28, 31, 32, 33]
 home_row = [13, 14, 15, 16, 19, 20, 21, 22]
 voisins_annulaire = [Doigts.AURICULAIRE, Doigts.MAJEUR]
 index_keys = [4, 5, 6, 7, 16, 17, 18, 19, 28, 29, 30, 31]
 
 weight_map = {
-     0: 2.5,  1: 2,    2: 1,    3: 1,    4: 1,    5: 1.5,  6: 1.5,  7: 1,    8: 1,    9: 1.2, 10: 2,   11: 2.5,
-    12: 2,   13: 1.5, 14: 0.7, 15: 0.5, 16: 0.5, 17: 1,   18: 1,   19: 0.5, 20: 0.5, 21: 0.7, 22: 1.5, 23: 2,
-    24: 2.5, 25: 2,   26: 1,   27: 1,   28: 1,   29: 1.5, 30: 1.5, 31: 1,   32: 1,   33: 1.2, 34: 2,   35: 2.5,
+     0: 5,    1: 4,    2: 1.5,    3: 1,    4: 1,    5: 1.5,  6: 1.5,  7: 1,    8: 1,    9: 1.5, 10: 4,   11: 5,  
+    12: 4,   13: 2,   14: 1,     15: 0.5, 16: 0.5, 17: 1,   18: 1,   19: 0.5, 20: 0.5, 21: 1,   22: 2,   23: 4,
+    24: 5,   25: 4,   26: 1.5,   27: 1,   28: 1,   29: 1.5, 30: 1.5, 31: 1,   32: 1,   33: 1.5, 34: 4,   35: 5,  
                                36: 1.5, 37: 0.5, 38: 1,   39: 1,   40: 0.5, 41: 1.5,
 }
 
 
 weights = {
-    'fr' : 0.6,
-    'en' : 0.4,
-    'java' : 0.0,
-    'python' : 0.0,
-    'md' : 0.0
+    'fr' : 0.7,
+    'en' : 0.3,
+    'java' : 0,
+    'python' : 0,
+    'md' : 0
 }
 
 
-stats = load_no_space_stats()
+stats = load_no_white_stats()

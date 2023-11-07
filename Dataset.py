@@ -113,18 +113,18 @@ def writecsv(path_clean, path_no_space, clean_stats):
                 # Appliquer les remplacements
                 ngram_tuple = replace_key(ngram_tuple)
                 writer_clean.writerow([*ngram_tuple, probability])
-                if 'SPACE' not in ngram_tuple:
+                if not any (el in ngram_tuple for el in ['SPACE', 'RET', 'TAB']):
                     writer_no_space.writerow([*ngram_tuple, probability])
 
 def clean_stats(folders, files):
     full_stats = load_stats(folders, files)
     for folder, dict_files in full_stats.items():
         for ngram, clean_stats in dict_files.items():
-            writecsv(f"stats/{folder}/clean_{files[ngram]}", f"stats/{folder}/no_space_{files[ngram]}", clean_stats)
+            writecsv(f"stats/{folder}/clean_{files[ngram]}", f"stats/{folder}/no_white_{files[ngram]}", clean_stats)
 
-#clean_stats(folders, files)
+clean_stats(folders, files)
 
-def load_no_space_stats():
+def load_no_white_stats():
     # Dictionnaire pour stocker les statistiques
     stats = {}
     # Parcourir chaque dossier
@@ -135,13 +135,13 @@ def load_no_space_stats():
             dict = {}
             stats[folder][ngram] = dict
             # Charger le fichier CSV
-            with open(f"stats/{folder}/no_space_{files[ngram]}", newline='', encoding='utf-8') as csvfile:
+            with open(f"stats/{folder}/no_white_{files[ngram]}", newline='', encoding='utf-8') as csvfile:
                 spamreader = csv.reader(csvfile)
                 for row in spamreader:
                     if ngram == 1:
-                        dict[row[0]] = row[-1]
+                        dict[row[0]] = float(row[-1])
                     else:
-                        dict[tuple(row[:-1])] = row[-1]
+                        dict[tuple(row[:-1])] = float(row[-1])
     return stats
 
 #stats = load_no_space_stats()
