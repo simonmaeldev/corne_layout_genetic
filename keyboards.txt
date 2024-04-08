@@ -1,0 +1,222 @@
+qwerty: 
+X = 
+| TAB |  Q  |  W  |  E  |  R  |  T  |  Y  |  U  |  I  |  O  |  P  | BSPC|
+| CAPS|  A  |  S  |  D  |  F  |  G  |  H  |  J  |  K  |  L  |  ;  | SQT |
+|SHIFT|  Z  |  X  |  C  |  V  |  B  |  N  |  M  |  ,  |  .  |  /  |SHIFT|
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+stats = {
+    "total_weight": 78.7051133621747,
+    "index": 31.218365319096584,
+    "sfb": 86.52777974823437,
+    "row_jumps": 74.26342831847431,
+    "repetition": 9.536390494895505,
+    "annulaire": 23.85939422380496,
+    "roll out": 60.52692922670632,
+    "roll in": 110.04989549196111,
+    "voisin_ligne_diff": 36.382683030289634,
+    "saut_doigt": 97.1455751388359,
+    "ratio_roll": 0.5495369019637841,
+    "ratio_voisin_saut": 0.3746040212978498
+}
+Best solution found: 
+X = 
+|  J  |  .  |  G  |  V  |  Z  |  È  |  W  |  H  |  A  | TAB |  M  |  _  |
+|  É  |  !  |  O  |  I  |  B  |  C  |  E  |  F  |  R  |  N  |  X  |  ,  |
+|  T  |  D  | SQT |  S  |  K  |  ^  |  U  |  P  |  Q  |  L  |  Y  |  À  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+stats = {
+    "total_weight": 92.7322826670474,
+    "index": 21.84615349844947,
+    "sfb": 18.187089432344617,
+    "row_jumps": 3.5313283987548503,
+    "repetition": 10.24835903585398,
+    "annulaire": 11.09783394375595,
+    "roll out": 55.46959647535737,
+    "roll in": 172.8117935808752,
+    "voisin_ligne_diff": 18.93316362717747,
+    "saut_doigt": 27.492589840427577,
+    "ratio_roll": 0.3216299046360459,
+    "ratio_voisin_saut": 0.6923197165361876
+}
+
+========================================
+
+0
+|  J  |  .  |  G  |  V  |  Z  |  È  |  W  |  H  |  A  | TAB |  M  |  _  |
+|  É  |  !  |  O  |  I  |  B  |  C  |  E  |  F  |  R  |  N  |  X  |  ,  |
+|  T  |  D  | SQT |  S  |  K  |  ^  |  U  |  P  |  Q  |  L  |  Y  |  À  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 80.29737182326444,
+    "index": 20.36654072465254,
+    "sfb": 20.029207808126756,
+    "row_jumps": 0.5603545770609735,
+    "repetition": 8.27582290028941,
+    "annulaire": 11.721521773523527,
+    "roll out": 110.63128615430037,
+    "roll in": 34.04562897785608,
+    "voisin_ligne_diff": 89.91094592046313,
+    "saut_doigt": 20.208557897600148,
+    "ratio_roll": 3.2809116997429246,
+    "ratio_voisin_saut": 4.802753848761615
+}
+
+1
+|  À  |  C  |  I  |  N  |  H  |  X  |  Y  |  S  |  ,  |  M  |  ^  |  K  |
+|  W  |  !  |  L  |  _  |  J  |  V  |  D  | SQT |  G  |  É  |  P  |  F  |
+|  È  |  B  |  .  |  O  | TAB |  Q  |  A  |  E  |  R  |  U  |  T  |  Z  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 83.5507961673995,
+    "index": 27.721659065176993,
+    "sfb": 44.74275835655716,
+    "row_jumps": 26.14412221469747,
+    "repetition": 10.599864226598303,
+    "annulaire": 5.9833985050978775,
+    "roll out": 105.64053145586455,
+    "roll in": 114.33684447055232,
+    "voisin_ligne_diff": 12.64655108530056,
+    "saut_doigt": 164.5010359258334,
+    "ratio_roll": 0.9243463298560275,
+    "ratio_voisin_saut": 0.0769535405955469
+}
+
+2
+|  È  |  U  | SQT |  !  |  O  |  K  |  B  |  Z  |  W  |  I  |  F  | TAB |
+|  A  |  Q  |  .  |  É  |  E  |  T  |  D  |  G  |  P  |  R  |  X  |  ^  |
+|  C  |  ,  |  S  |  M  |  J  |  V  |  Y  |  À  |  _  |  L  |  N  |  H  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 81.4829242722915,
+    "index": 19.29545124367574,
+    "sfb": 92.04322603904929,
+    "row_jumps": 2.899840744861397,
+    "repetition": 10.723432556063775,
+    "annulaire": 12.533017938417938,
+    "roll out": 52.66971923863077,
+    "roll in": 97.54563608093855,
+    "voisin_ligne_diff": 17.21347481041086,
+    "saut_doigt": 113.0118867218739,
+    "ratio_roll": 0.5401162597041834,
+    "ratio_voisin_saut": 0.15301681486765353
+}
+
+3
+|  ,  |  P  |  È  |  W  |  V  |  D  |  .  |  M  |  É  |  O  |  L  |  !  |
+|  À  |  ^  |  G  |  B  | SQT |  Y  |  J  |  A  |  I  |  Q  | TAB |  C  |
+|  F  |  _  |  E  |  K  |  H  |  Z  |  X  |  R  |  U  |  S  |  N  |  T  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 86.82615677058084,
+    "index": 19.02120879900626,
+    "sfb": 14.569039854267858,
+    "row_jumps": 3.314781861183941,
+    "repetition": 11.31219154903552,
+    "annulaire": 25.066685329254096,
+    "roll out": 123.47416600064452,
+    "roll in": 46.47334331346041,
+    "voisin_ligne_diff": 29.33317204505679,
+    "saut_doigt": 38.55262171802589,
+    "ratio_roll": 2.695133910316206,
+    "ratio_voisin_saut": 0.7648927729165359
+}
+
+4
+|  D  |  C  |  M  |  J  |  À  |  O  |  .  |  _  |  X  |  E  |  L  |  F  |
+| SQT |  S  |  T  |  G  |  K  |  A  |  P  |  R  |  Z  | TAB |  N  |  !  |
+|  É  |  È  |  H  |  Y  |  V  |  Q  |  ,  |  ^  |  W  |  I  |  B  |  U  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 87.19589335689335,
+    "index": 22.8872619825468,
+    "sfb": 14.506927074070864,
+    "row_jumps": 4.24447093690044,
+    "repetition": 11.296566801493224,
+    "annulaire": 19.422128914994815,
+    "roll out": 111.92072311527701,
+    "roll in": 36.41536887324689,
+    "voisin_ligne_diff": 20.165422773648686,
+    "saut_doigt": 101.05122341031293,
+    "ratio_roll": 3.1014351330179886,
+    "ratio_voisin_saut": 0.20049319985968972
+}
+
+5
+|  À  |  .  |  V  |  ^  |  Z  |  J  |  W  |  F  |  H  |  K  | TAB |  _  |
+|  É  |  T  |  O  |  I  |  B  |  M  |  E  |  È  |  R  |  !  |  X  |  ,  |
+|  N  |  D  |  G  |  S  |  C  | SQT |  U  |  P  |  Q  |  L  |  Y  |  A  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 87.49997857070632,
+    "index": 22.927217416438612,
+    "sfb": 17.624397415448236,
+    "row_jumps": 0.35953969854132156,
+    "repetition": 8.27582290028941,
+    "annulaire": 7.368763322408753,
+    "roll out": 109.66034823701504,
+    "roll in": 41.8006294676899,
+    "voisin_ligne_diff": 15.273365657369133,
+    "saut_doigt": 31.005858688439382,
+    "ratio_roll": 2.630465528153297,
+    "ratio_voisin_saut": 0.49407347899194376
+}
+
+6
+|  À  |  .  |  V  |  ^  |  Z  |  J  |  W  |  F  |  H  | TAB |  M  |  _  |
+|  É  |  T  |  O  |  I  |  B  |  C  |  E  |  È  |  R  |  !  |  X  |  ,  |
+|  N  |  D  |  G  |  S  |  K  | SQT |  U  |  P  |  Q  |  L  |  Y  |  A  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 88.54160652943312,
+    "index": 21.190085188925448,
+    "sfb": 18.993269923793722,
+    "row_jumps": 1.7172175991164824,
+    "repetition": 8.27582290028941,
+    "annulaire": 7.220717931846522,
+    "roll out": 110.59141205761661,
+    "roll in": 42.2867018007953,
+    "voisin_ligne_diff": 14.22126006309231,
+    "saut_doigt": 33.2418562331084,
+    "ratio_roll": 2.619922672808421,
+    "ratio_voisin_saut": 0.4301770695502244
+}
+
+7
+|  J  |  H  |  N  |  F  | SQT |  A  |  R  |  D  |  È  |  I  |  Z  |  ,  |
+|  T  |  O  |  E  |  V  |  X  |  À  |  C  |  K  |  ^  |  L  |  W  |  B  |
+|  U  |  G  |  Q  |  P  |  É  |  !  |  _  |  Y  |  .  |  M  |  S  | TAB |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 88.69158741274721,
+    "index": 22.219805195441577,
+    "sfb": 19.813448892657664,
+    "row_jumps": 4.104164148788652,
+    "repetition": 11.204502214482968,
+    "annulaire": 27.22883547796256,
+    "roll out": 43.97466283339647,
+    "roll in": 101.34075063972955,
+    "voisin_ligne_diff": 98.60038995774119,
+    "saut_doigt": 20.462527484631494,
+    "ratio_roll": 0.433906472181521,
+    "ratio_voisin_saut": 5.1484129494389075
+}
+
+8
+|  W  |  ,  |  M  |  N  |  R  |  H  |  T  |  X  |  !  |  É  |  A  |  G  |
+|  P  |  B  |  K  |  S  |  O  |  F  |  Z  |  C  | SQT |  U  |  E  |  .  |
+|  J  |  Q  |  _  |  È  | TAB |  V  |  I  |  L  |  À  |  Y  |  D  |  ^  |
+                  | LALT| DEL |SPACE| RET | BSPC| ESC |
+{
+    "total_weight": 86.73062211781463,
+    "index": 32.93877580127358,
+    "sfb": 32.476756356955974,
+    "row_jumps": 5.0715524220536485,
+    "repetition": 8.219929186022185,
+    "annulaire": 3.6989942612416553,
+    "roll out": 164.8425017691463,
+    "roll in": 103.0525305525174,
+    "voisin_ligne_diff": 10.946322043583253,
+    "saut_doigt": 103.47432387905786,
+    "ratio_roll": 1.5996578064989073,
+    "ratio_voisin_saut": 0.10557287561671401
+}
