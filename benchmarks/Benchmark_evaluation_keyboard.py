@@ -1,6 +1,6 @@
-from models.Keyboard import *
-from dataset.NGramDataCleaner import *
-from models.ReferenceKeyboard import *
+from models.Keyboard import Ligne, Doigts, keypos_finger, keypos_row, index_keys, weight_map, stats
+from models.ReferenceKeyboard import qwerty_char_to_key, char_to_hf
+from typing import List
 
 keyboard_keys = [
     'Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'BSPC',
@@ -22,7 +22,7 @@ for key, value in keyboard_dict.items():
 def same_hand(hf1, hf2):
     return hf1[0] == hf2[0]
 
-def doigts_voisins(hf1: [Doigts], hf2: [Doigts]):
+def doigts_voisins(hf1: List[Doigts], hf2: List[Doigts]):
     return hf1[1].value == hf2[1].value -1 or hf1[1].value == hf2[1].value +1
 
 # pour les digrams et trigrams

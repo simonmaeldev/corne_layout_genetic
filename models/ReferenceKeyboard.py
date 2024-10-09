@@ -1,4 +1,4 @@
-from models.Keyboard import *
+from models.Keyboard import Keyboard
 
 qwerty_key_to_char = {
     0: 'TAB',

@@ -1,8 +1,8 @@
 from enum import Enum
-from models.Data import *
+from models.Data import not_stackable, custom_stack, char_to_set
 import random
 import numpy as np
-from dataset.NGramDataCleaner import *
+from dataset.NGramDataCleaner import load_no_white_stats
 
 
 class Keyboard():
@@ -23,7 +23,7 @@ class Keyboard():
             self.finilize()
 
     def _set_thumb(self):
-        if (self.key_to_char == None):
+        if (self.key_to_char is None):
             self.key_to_char = {}
         self.key_to_char[36] = "LALT"
         self.key_to_char[37] = "DEL"
@@ -32,7 +32,7 @@ class Keyboard():
         self.key_to_char[40] = "BSPC"
         self.key_to_char[41] = "ESC"
 
-        if (self.char_to_key == None):
+        if (self.char_to_key is None):
             self.char_to_key = {}
         self.char_to_key["LALT"] = 36
         self.char_to_key["DEL"] = 37
@@ -229,7 +229,7 @@ class Keyboard():
                         roll_seq = []
                         roll_hf = []
                     # section comparaison avec le dernier de la même main
-                    if last[current_hf[0]] != None:
+                    if last[current_hf[0]] is not None:
                         last_row = keypos_row[last[current_hf[0]]]
                         next_key = self.char_to_key[next]
                         current_row = keypos_row[next_key]
