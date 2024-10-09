@@ -5,14 +5,14 @@ import json
 import csv
 from datetime import datetime
 
-from MySampling import MySampling
-from MyCrossover import MyCrossover
-from MyMutation import MyMutation
-from MyDuplicateElimination import MyDuplicateElimination
-from MyProblem import MyProblem
-from MyCallback import MyCallback
-from ReferenceKeyboard import qwerty_keyboard, neu_keyboard, polyglot_keyboard
-from CsvUtils import visualize, all_cols, sort_cols
+from genetic_algorithm.MySampling import MySampling
+from genetic_algorithm.MyCrossover import MyCrossover
+from genetic_algorithm.MyMutation import MyMutation
+from genetic_algorithm.MyDuplicateElimination import MyDuplicateElimination
+from genetic_algorithm.MyProblem import MyProblem
+from genetic_algorithm.MyCallback import MyCallback
+from models.ReferenceKeyboard import qwerty_keyboard, neu_keyboard, polyglot_keyboard
+from utils.CsvUtils import visualize, all_cols, sort_cols
 
 
 NB_GEN = 1
