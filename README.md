@@ -61,6 +61,21 @@ tab=readme-ov-file#why-do-we-need-split-keyboards]
 
 Contributions to improve the optimization algorithm, add new metrics, or enhance the analysis are welcome. Please feel free to submit issues or pull requests.
 
+## References
+
+This project uses WikiExtractor for processing Wikipedia dumps. If you find this tool useful in your work, please cite it as:
+
+```bibtex
+@misc{Wikiextractor2015,
+  author = {Giusepppe Attardi},
+  title = {WikiExtractor},
+  year = {2015},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/attardi/wikiextractor}}
+}
+```
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
