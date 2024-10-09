@@ -70,7 +70,7 @@ def sort_cols(in_path, out_path, cols):
 #coord = load_csv_res("mon_fichier.csv")
 #visualize(coord)
 
-start = ["numero", "total_weight", "total_sfb" "ratio_roll", "total_weighted_weakness", "total_left", "total_right", "total_alternate", "total_saut_doigt", "total_ligne_diff", "total_row_jump", "total_roll_in", "total_roll_out", "total_redirect"]
+start = ["numero", "total_weight", "total_sfb", "ratio_roll", "total_weighted_weakness", "total_left", "total_right", "total_alternate", "total_saut_doigt", "total_ligne_diff", "total_row_jump", "total_roll_in", "total_roll_out", "total_redirect"]
 end = ["left_min", "left_max", "right_min", "right_max", "sfb_left_max", "sfb_left_min", "sfb_right_max", "sfb_right_min", "jump_auri", "diff_annu", "sfb_auri", "sfb_annu", "sfb_maj", "sfb_ind", "missing", "weakness", "string rep"]
 
 lst_doigts = ['G_AURICULAIRE', 'G_ANNULAIRE', 'G_MAJEUR', 'G_INDEX', 'D_INDEX', 'D_MAJEUR', 'D_ANNULAIRE', 'D_AURICULAIRE']
