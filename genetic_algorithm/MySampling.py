@@ -1,7 +1,6 @@
 import numpy as np
 from pymoo.core.sampling import Sampling
 from models.Keyboard import Keyboard
-import copy
 
 class MySampling(Sampling):
     def _do(self, problem, n_samples, **kwargs):
