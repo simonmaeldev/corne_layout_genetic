@@ -1,3 +1,32 @@
+"""
+WikiNGramCalculator.py
+
+This script is designed to process text data extracted from Wikipedia using WikiExtractor
+and calculate n-gram statistics. It is the first step in creating a dataset for further
+analysis or machine learning tasks.
+
+Key concepts:
+1. Monograms (or unigrams): Single characters in the text.
+2. Digrams: Sequences of two consecutive characters in the text.
+3. Trigrams: Sequences of three consecutive characters in the text.
+
+The script does the following:
+1. Reads text files from a specified input folder (containing WikiExtractor output).
+2. Processes each file to calculate monogram, digram, and trigram frequencies.
+3. Aggregates statistics across all processed files.
+4. Outputs the results as CSV files in a specified output folder.
+
+The n-gram calculations are case-insensitive (all text is converted to lowercase).
+The script uses multiprocessing to improve performance when processing multiple files.
+
+Output:
+- monogram_statistics.csv: Contains single character frequencies.
+- digram_statistics.csv: Contains two-character sequence frequencies.
+- trigram_statistics.csv: Contains three-character sequence frequencies.
+
+Each output file includes the n-gram, its frequency count, and its percentage of total n-grams.
+"""
+
 import os
 import csv
 from collections import Counter
