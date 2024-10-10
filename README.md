@@ -33,7 +33,23 @@ The project utilizes genetic algorithms to find an optimal layout based on langu
 
 3. **Optimization**:
    - Utilized [PyMoo][https://pymoo.org], a Python framework for multi-objective optimization.
-   - Implemented custom weights for different languages to tailor the layout to specific use cases.
+   - Implemented a multi-objective genetic algorithm (NSGA-II) to optimize the keyboard layout.
+   - The optimization process considers multiple objectives simultaneously:
+     - Minimizing total keyboard weight (based on key usage frequency and distance from home row)
+     - Minimizing same-finger bigrams (weighted by usage)
+     - Optimizing the ratio between inward and outward rolls
+   - Custom weights for different languages are used to tailor the layout to specific use cases.
+   - The algorithm evolves a population of keyboard layouts over multiple generations, progressively improving the designs.
+   - Non-dominated sorting is used to identify the best solutions that balance all objectives.
+
+4. **Running the Optimization**:
+   - To run the optimization process, execute the `Optimize.py` script:
+     ```
+     python Optimize.py
+     ```
+   - This script sets up the optimization problem, runs the NSGA-II algorithm, and outputs the results.
+   - The optimization process may take some time, depending on the number of generations and population size.
+   - Results will include a set of Pareto-optimal keyboard layouts that represent different trade-offs between the objectives.
 
 3. **Metrics**:
    - Total keyboard weight (key usage frequency * distance from home row)
