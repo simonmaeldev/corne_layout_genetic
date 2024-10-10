@@ -69,5 +69,7 @@ class MyCallback(Callback):
         self.axs[3].set(ylabel="hypervolume")
 
         plt.draw()
-        plt.pause(0.01)
+        # allow for user to move the window on the first generation
+        stop_time = 10 if len(self.n_gen) == 1 else 0.01
+        plt.pause(stop_time)
 
