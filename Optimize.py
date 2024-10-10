@@ -36,6 +36,9 @@ res = minimize(MyProblem(),
                save_history=False,
                verbose=True)
 
+plt.ioff()
+plt.show()
+
 print(f"[{datetime.now()}] FIN nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 
 def print_to_txt(statsX):
@@ -53,28 +56,6 @@ def write_to_csv(statsX):
         for i, (kbd, statistics) in enumerate(statsX):
             line = [i] + [statistics[k] for k in keys] + [";".join([kbd.get_char(j) for j in range(42)])]
             writer.writerow(line)
-
-fig, axs = plt.subplots(4, sharex=True)
-fig.suptitle("Convergence")
-
-axs[0].plot(callback.n_gen, callback.avr_total, label='average')
-axs[0].plot(callback.n_gen, callback.min_total, label='min')
-axs[0].set(ylabel="total_weight")
-
-axs[1].plot(callback.n_gen, callback.avr_sfb, label='average')
-axs[1].plot(callback.n_gen, callback.min_sfb, label='min')
-axs[1].set(ylabel="sfb")
-
-axs[2].plot(callback.n_gen, callback.avr_weakness, label='average')
-axs[2].plot(callback.n_gen, callback.min_weakness, label='min')
-axs[2].set(ylabel="ratio roll")
-
-axs[3].plot(callback.n_gen, callback.avr_hv, label='average')
-axs[3].plot(callback.n_gen, callback.max_hv, label='max')
-axs[3].set(ylabel="hypervolume")
-
-plt.show()
-
 
 qwerty_keyboard.evaluate()
 neu_keyboard.evaluate()

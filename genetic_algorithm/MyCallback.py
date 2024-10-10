@@ -1,6 +1,7 @@
 from pymoo.core.callback import Callback
 from pymoo.indicators.hv import HV
 import numpy as np
+import matplotlib.pyplot as plt
 
 ind = HV(ref_point=np.array([150, 200, 200]))
 
@@ -20,6 +21,9 @@ class MyCallback(Callback):
         self.avr_weakness = []
         self.avr_hv = []
         self.max_hv = []
+
+        self.fig, self.axs = plt.subplots(4, sharex=True)
+        plt.ion()
 
     def notify(self, algorithm):
         X, F = algorithm.pop.get("X", "F")
@@ -41,4 +45,28 @@ class MyCallback(Callback):
         self.avr_hv.append(average(all_hv))
         self.max_hv.append(max(all_hv))
         self.n_gen.append(algorithm.n_gen)
+        
+        self.axs[0].clear()
+        self.axs[1].clear()
+        self.axs[2].clear()
+        self.axs[3].clear()
+        self.fig.suptitle("Convergence")
+
+        self.axs[0].plot(self.n_gen, self.avr_total, label='average')
+        self.axs[0].plot(self.n_gen, self.min_total, label='min')
+        self.axs[0].set(ylabel="total_weight")
+
+        self.axs[1].plot(self.n_gen, self.avr_sfb, label='average')
+        self.axs[1].plot(self.n_gen, self.min_sfb, label='min')
+        self.axs[1].set(ylabel="sfb")
+
+        self.axs[2].plot(self.n_gen, self.avr_weakness, label='average')
+        self.axs[2].plot(self.n_gen, self.min_weakness, label='min')
+        self.axs[2].set(ylabel="ratio roll")
+
+        self.axs[3].plot(self.n_gen, self.avr_hv, label='average')
+        self.axs[3].plot(self.n_gen, self.max_hv, label='max')
+        self.axs[3].set(ylabel="hypervolume")
+
+        plt.draw()
 
