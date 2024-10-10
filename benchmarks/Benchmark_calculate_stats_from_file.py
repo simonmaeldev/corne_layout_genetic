@@ -1,3 +1,23 @@
+"""
+This script benchmarks two methods of calculating text statistics: an old method and a new method.
+
+The script does the following:
+1. Defines two functions for calculating text statistics:
+   - calculate_statistics_old: Uses list comprehensions and Counter objects
+   - calculate_statistics_new: Uses a single pass through the text with manual counting
+2. Generates texts of various sizes (from 10^4 to 10^8 characters)
+3. Measures the execution time of both methods for each text size
+4. Plots the results on a log-log scale graph
+
+The benchmark compares the performance of these methods in terms of:
+- Counting total characters
+- Counting individual characters
+- Counting digrams (2-character sequences)
+- Counting trigrams (3-character sequences)
+
+The results are visualized using matplotlib, showing how execution time scales with text size for both methods.
+"""
+
 import timeit
 import random
 import string
