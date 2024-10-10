@@ -25,6 +25,9 @@ Output:
 - trigram_statistics.csv: Contains three-character sequence frequencies.
 
 Each output file includes the n-gram, its frequency count, and its percentage of total n-grams.
+
+Note: The method to calculate statistics has been evaluated and optimized using the
+Benchmark_calculate_stats_from_file.py script to ensure efficient performance.
 """
 
 import os
