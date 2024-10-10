@@ -10,15 +10,28 @@ The project utilizes genetic algorithms to find an optimal layout based on langu
 
 ## Methodology
 
-1. **Data Collection**: 
+1. **Data Collection and Processing**: 
    - For French and English:
      - Downloaded Wikipedia dumps using [WikiExtractor][https://github.com/attardi/wikiextractor].
-     - Created custom scripts to extract monogram, bigram, and trigram statistics from the Wikipedia data.
    - For Python, Java, and Markdown:
      - Used private files to generate language-specific statistics.
-   - Created custom scripts to extract monogram, bigram, and trigram statistics from all data sources.
 
-2. **Optimization**:
+2. **Dataset Creation Process**:
+   The dataset is created in the following order using these scripts:
+   a. `dataset/WikiNGramCalculator.py`: 
+      - Processes raw text data and generates initial n-gram statistics.
+      - Outputs: `monogram_statistics.csv`, `digram_statistics.csv`, `trigram_statistics.csv`
+   b. `dataset/NGramDataCleaner.py`:
+      - Cleans and refines the initial statistics.
+      - Outputs: 
+        - `clean_monogram_statistics.csv`
+        - `clean_digram_statistics.csv`
+        - `clean_trigram_statistics.csv`
+        - `no_white_monogram_statistics.csv`
+        - `no_white_digram_statistics.csv`
+        - `no_white_trigram_statistics.csv`
+
+3. **Optimization**:
    - Utilized [PyMoo][https://pymoo.org], a Python framework for multi-objective optimization.
    - Implemented custom weights for different languages to tailor the layout to specific use cases.
 
