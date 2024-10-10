@@ -1,3 +1,27 @@
+"""
+This script benchmarks and evaluates keyboard layouts based on various ergonomic metrics.
+
+The script performs the following tasks:
+1. Defines a QWERTY keyboard layout and converts it to a dictionary.
+2. Implements functions to analyze keyboard usage patterns:
+   - same_hand: Checks if two keys are typed with the same hand.
+   - doigts_voisins: Checks if two keys are typed with adjacent fingers.
+   - get_nb_sfb_jump: Analyzes digrams and trigrams for various metrics like same-finger bigrams, 
+     row jumps, repetitions, and rolling motions.
+   - weight_proba: Calculates weighted probabilities for monograms.
+3. Defines an evaluate function that applies these analyses to different language statistics.
+
+Key metrics evaluated:
+- Same Finger Bigrams (SFB)
+- Row jumps
+- Character repetitions
+- Awkward finger movements (especially for the ring finger)
+- In-rolls vs. out-rolls ratio
+- Ratio of adjacent finger usage on different rows vs. finger jumps
+
+The script uses predefined mappings and statistics from imported modules to perform these calculations.
+"""
+
 from models.Keyboard import Ligne, Doigts, keypos_finger, keypos_row, index_keys, weight_map, stats
 from models.ReferenceKeyboard import qwerty_char_to_key, char_to_hf
 from typing import List
