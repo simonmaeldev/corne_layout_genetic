@@ -11,8 +11,12 @@ The project utilizes genetic algorithms to find an optimal layout based on langu
 ## Methodology
 
 1. **Data Collection**: 
-   - Downloaded French and English Wikipedia dumps using [WikiExtractor][https://github.com/attardi/wikiextractor].
-   - Created custom scripts to extract monogram, bigram, and trigram statistics from the Wikipedia data.
+   - For French and English:
+     - Downloaded Wikipedia dumps using [WikiExtractor][https://github.com/attardi/wikiextractor].
+     - Created custom scripts to extract monogram, bigram, and trigram statistics from the Wikipedia data.
+   - For Python, Java, and Markdown:
+     - Used private files to generate language-specific statistics.
+   - Created custom scripts to extract monogram, bigram, and trigram statistics from all data sources.
 
 2. **Optimization**:
    - Utilized [PyMoo][https://pymoo.org], a Python framework for multi-objective optimization.
