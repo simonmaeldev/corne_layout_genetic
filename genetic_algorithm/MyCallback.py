@@ -69,4 +69,5 @@ class MyCallback(Callback):
         self.axs[3].set(ylabel="hypervolume")
 
         plt.draw()
+        plt.pause(0.01)
 
