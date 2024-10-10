@@ -3,8 +3,6 @@ import unicodedata
 from models.Data import accent_ignore
 import csv
 
-
-
 # Dossiers à analyser
 folders = ["fr", "en", "java", "python", "md"]
 
@@ -27,8 +25,6 @@ def separate_accent(letter):
         return decomposed[0].upper(), decomposed[1].upper()
     else:
         return letter, None
-
-
 
 def load_stats(folders, files, threshold = 0.01, limit = 1000):
     # Dictionnaire pour stocker les statistiques
@@ -90,8 +86,6 @@ def load_stats(folders, files, threshold = 0.01, limit = 1000):
                     dict[tuple(lst)] = value
     return stats
 
-#stats = load_stats(folders, files)
-
 replace_dict = {'\n': 'RET', ' ': 'SPACE', '\t': 'TAB', "'" : "SQT", '"': 'DQT'}
 
 def replace_key(key):
@@ -120,27 +114,5 @@ def clean_stats(folders, files):
         for ngram, clean_stats in dict_files.items():
             writecsv(f"dataset/stats/{folder}/clean_{files[ngram]}", f"dataset/stats/{folder}/no_white_{files[ngram]}", clean_stats)
 
-clean_stats(folders, files)
-
-def load_no_white_stats():
-    # Dictionnaire pour stocker les statistiques
-    stats = {}
-    # Parcourir chaque dossier
-    for folder in folders:
-        stats[folder] = {}
-        # Parcourir chaque type de fichier dans le dossier
-        for ngram in [3, 2, 1]:
-            dict = {}
-            stats[folder][ngram] = dict
-            # Charger le fichier CSV
-            with open(f"dataset/stats/{folder}/no_white_{files[ngram]}", newline='', encoding='utf-8') as csvfile:
-                spamreader = csv.reader(csvfile)
-                for row in spamreader:
-                    if ngram == 1:
-                        dict[row[0]] = float(row[-1])
-                    else:
-                        dict[tuple(row[:-1])] = float(row[-1])
-    return stats
-
-#stats = load_no_space_stats()
-#print(stats)
+if __name__ == "__main__":
+    clean_stats(folders, files)

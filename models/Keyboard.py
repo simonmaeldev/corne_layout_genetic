@@ -2,8 +2,37 @@ from enum import Enum
 from models.Data import not_stackable, custom_stack, char_to_set
 import random
 import numpy as np
-from dataset.NGramDataCleaner import load_no_white_stats
+import csv
 
+# Dossiers à analyser
+folders = ["fr", "en", "java", "python", "md"]
+
+# dictionnaire du ngram vers le nom du fichier
+files = {
+    1: "monogram_statistics.csv",
+    2: "digram_statistics.csv",
+    3: "trigram_statistics.csv",
+}
+
+def load_no_white_stats():
+    # Dictionnaire pour stocker les statistiques
+    stats = {}
+    # Parcourir chaque dossier
+    for folder in folders:
+        stats[folder] = {}
+        # Parcourir chaque type de fichier dans le dossier
+        for ngram in [3, 2, 1]:
+            dict = {}
+            stats[folder][ngram] = dict
+            # Charger le fichier CSV
+            with open(f"dataset/stats/{folder}/no_white_{files[ngram]}", newline='', encoding='utf-8') as csvfile:
+                spamreader = csv.reader(csvfile)
+                for row in spamreader:
+                    if ngram == 1:
+                        dict[row[0]] = float(row[-1])
+                    else:
+                        dict[tuple(row[:-1])] = float(row[-1])
+    return stats
 
 class Keyboard():
     def __init__(self, rand= True, key_to_char = None, char_to_key = None):
