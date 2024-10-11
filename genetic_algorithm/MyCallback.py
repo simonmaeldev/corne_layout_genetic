@@ -55,18 +55,22 @@ class MyCallback(Callback):
         self.axs[0].plot(self.n_gen, self.avr_total, label='average')
         self.axs[0].plot(self.n_gen, self.min_total, label='min')
         self.axs[0].set(ylabel="total_weight")
+        self.axs[0].legend()
 
         self.axs[1].plot(self.n_gen, self.avr_sfb, label='average')
         self.axs[1].plot(self.n_gen, self.min_sfb, label='min')
         self.axs[1].set(ylabel="sfb")
+        self.axs[1].legend()
 
         self.axs[2].plot(self.n_gen, self.avr_weakness, label='average')
         self.axs[2].plot(self.n_gen, self.min_weakness, label='min')
         self.axs[2].set(ylabel="ratio roll")
+        self.axs[2].legend()
 
         self.axs[3].plot(self.n_gen, self.avr_hv, label='average')
         self.axs[3].plot(self.n_gen, self.max_hv, label='max')
         self.axs[3].set(ylabel="hypervolume")
+        self.axs[3].legend()
 
         plt.draw()
         # allow for user to move the window on the first generation
