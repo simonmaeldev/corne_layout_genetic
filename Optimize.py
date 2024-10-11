@@ -15,8 +15,8 @@ from models.ReferenceKeyboard import qwerty_keyboard, neu_keyboard, polyglot_key
 from utils.CsvUtils import visualize, all_cols, sort_cols
 
 
-NB_GEN = 1
-POP_SIZE = 15
+NB_GEN = 12
+POP_SIZE = 300
 
 print(f"[{datetime.now()}] nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 
@@ -37,9 +37,9 @@ res = minimize(MyProblem(),
                verbose=True)
 
 plt.ioff()
+print(f"[{datetime.now()}] FIN nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 plt.show()
 
-print(f"[{datetime.now()}] FIN nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 
 def print_to_txt(statsX):
     with open("keyboards.txt", "w", encoding="UTF-8") as file:
@@ -61,9 +61,9 @@ qwerty_keyboard.evaluate()
 neu_keyboard.evaluate()
 polyglot_keyboard.evaluate()
 
-#X, F = res.opt.get("X", "F")
-#statsX = [(kbd, kbd.get_stats()) for sublist in X for kbd in sublist]
-stats_comp = [(qwerty_keyboard, qwerty_keyboard.get_stats()), (neu_keyboard, neu_keyboard.get_stats()), (polyglot_keyboard, polyglot_keyboard.get_stats())] #+ statsX
+X, F = res.opt.get("X", "F")
+statsX = [(kbd, kbd.get_stats()) for sublist in X for kbd in sublist]
+stats_comp = [(qwerty_keyboard, qwerty_keyboard.get_stats()), (neu_keyboard, neu_keyboard.get_stats()), (polyglot_keyboard, polyglot_keyboard.get_stats())] + statsX
 
 print_to_txt(stats_comp)
 write_to_csv(stats_comp)
