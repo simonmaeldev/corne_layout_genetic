@@ -17,8 +17,8 @@ from models.ReferenceKeyboard import qwerty_keyboard, neu_keyboard, polyglot_key
 from utils.CsvUtils import visualize, all_cols, sort_cols
 
 
-NB_GEN = 12
-POP_SIZE = 300
+NB_GEN = 1000
+POP_SIZE = 100
 
 # parallelisation
 n_threads = 20
