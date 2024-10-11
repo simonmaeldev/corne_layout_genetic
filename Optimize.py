@@ -40,9 +40,6 @@ plt.ioff()
 print(f"[{datetime.now()}] FIN nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 plt.show()
 
-import matplotlib.pyplot as plt
-import numpy as np
-
 def plot_barchart(stat_name, stat_values, keyboard_names, colors):
     plt.figure(figsize=(12, 6))
     bars = plt.bar(keyboard_names, stat_values, color=colors)
@@ -61,12 +58,12 @@ def plot_barchart(stat_name, stat_values, keyboard_names, colors):
     plt.tight_layout()
     plt.show()
 
-def printbarcharts(stats_comp, do_not_print=set()):
+def printbarcharts(stats_comp, print=set()):
     keyboard_names = ['QWERTY', 'NEU', 'POLYGLOT'] + [f'Keyboard {i}' for i in range(3, len(stats_comp))]
     colors = ['red', 'green', 'orange'] + ['blue'] * (len(stats_comp) - 3)
-    
+
     for stat_name in stats_comp[0][1].keys():
-        if stat_name not in do_not_print:
+        if len(print) == 0 or stat_name in print:
             stat_values = [kbd.get_stats()[stat_name] for kbd, _ in stats_comp]
             plot_barchart(stat_name, stat_values, keyboard_names, colors)
 
@@ -101,4 +98,5 @@ write_to_csv(stats_comp)
 coord = [[statistics["total_weight"], statistics["total_sfb"], statistics["ratio_roll"]] for _, statistics in stats_comp]
 
 visualize(coord)
+printbarcharts(stats_comp, print={"total_weight", "total_sfb", "total_alternate", "total_saut_doigt", "total_ligne_diff", "total_row_jump", "total_redirect"})
 sort_cols("mon_fichier.csv", "keyboard_clean.csv", all_cols)
