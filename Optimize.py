@@ -40,6 +40,35 @@ plt.ioff()
 print(f"[{datetime.now()}] FIN nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 plt.show()
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_barchart(stat_name, stat_values, keyboard_names, colors):
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(keyboard_names, stat_values, color=colors)
+    plt.title(f'{stat_name} Comparison')
+    plt.xlabel('Keyboards')
+    plt.ylabel(stat_name)
+    plt.xticks(rotation=45, ha='right')
+    
+    # Add value labels on top of each bar
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+                 f'{height:.2f}',
+                 ha='center', va='bottom')
+    
+    plt.tight_layout()
+    plt.show()
+
+def printbarcharts(stats_comp, do_not_print=set()):
+    keyboard_names = ['QWERTY', 'NEU', 'POLYGLOT'] + [f'Keyboard {i}' for i in range(3, len(stats_comp))]
+    colors = ['red', 'green', 'orange'] + ['blue'] * (len(stats_comp) - 3)
+    
+    for stat_name in stats_comp[0][1].keys():
+        if stat_name not in do_not_print:
+            stat_values = [kbd.get_stats()[stat_name] for kbd, _ in stats_comp]
+            plot_barchart(stat_name, stat_values, keyboard_names, colors)
 
 def print_to_txt(statsX):
     with open("keyboards.txt", "w", encoding="UTF-8") as file:
