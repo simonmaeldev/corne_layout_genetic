@@ -17,8 +17,8 @@ class MyCallback(Callback):
         self.avr_total = []
         self.min_sfb = []
         self.avr_sfb = []
-        self.min_weakness = []
-        self.avr_weakness = []
+        self.min_redirect = []
+        self.avr_redirect = []
         self.avr_hv = []
         self.max_hv = []
 
@@ -29,19 +29,19 @@ class MyCallback(Callback):
         X, F = algorithm.pop.get("X", "F")
         total = []
         sfb = []
-        weakness = []
+        redirect = []
         all_hv = []
         for stats in F:
             all_hv.append(ind(stats))
             total.append(stats[0])
             sfb.append(stats[1])
-            weakness.append(stats[2])
+            redirect.append(stats[2])
         self.avr_total.append(average(total))
         self.min_total.append(min(total))
         self.avr_sfb.append(average(sfb))
         self.min_sfb.append(min(sfb))
-        self.avr_weakness.append(average(weakness))
-        self.min_weakness.append(min(weakness))
+        self.avr_redirect.append(average(redirect))
+        self.min_redirect.append(min(redirect))
         self.avr_hv.append(average(all_hv))
         self.max_hv.append(max(all_hv))
         self.n_gen.append(algorithm.n_gen)
@@ -62,9 +62,9 @@ class MyCallback(Callback):
         self.axs[1].set(ylabel="sfb")
         self.axs[1].legend()
 
-        self.axs[2].plot(self.n_gen, self.avr_weakness, label='average')
-        self.axs[2].plot(self.n_gen, self.min_weakness, label='min')
-        self.axs[2].set(ylabel="ratio roll")
+        self.axs[2].plot(self.n_gen, self.avr_redirect, label='average')
+        self.axs[2].plot(self.n_gen, self.min_redirect, label='min')
+        self.axs[2].set(ylabel="total_redirect")
         self.axs[2].legend()
 
         self.axs[3].plot(self.n_gen, self.avr_hv, label='average')

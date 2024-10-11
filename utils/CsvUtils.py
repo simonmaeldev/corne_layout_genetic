@@ -30,7 +30,7 @@ def load_csv_res(file_path):
         return selected_columns
 
 def visualize(coord):
-    plot = Scatter(legend=True, labels=["Total Weight", "SFB", "Ratio Roll"])
+    plot = Scatter(legend=True, labels=["Total Weight", "SFB", "Total Redirect"])
     plot.add(np.array(coord[3:]), label="Population", color="blue")
     plot.add(np.array([coord[0]]), label="QWERTY", color="red")
     plot.add(np.array([coord[1]]), label="NEU", color="green")

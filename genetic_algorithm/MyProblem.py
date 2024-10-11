@@ -26,7 +26,7 @@ class MyProblem(ElementwiseProblem):
         # constraints.append(res["sfb_maj"] - 0.1)
         # constraints.append(res["sfb_ind"] - 1.5)
         # F is the objective function value
-        out["F"] = np.array([res["total_weight"], res["total_sfb"], res["ratio_roll"]], dtype=float)
+        out["F"] = np.array([res["total_weight"], res["total_sfb"], res["total_redirect"]], dtype=float)
         # G is the constraint values
         out["G"] = np.array(constraints, dtype=float)
         

@@ -89,13 +89,14 @@ polyglot_keyboard.evaluate()
 
 X, F = res.opt.get("X", "F")
 statsX = [(kbd, kbd.get_stats()) for sublist in X for kbd in sublist]
+print(f"{len(statsX)} individuals are on the pareto front and in the constraints")
 stats_comp = [(qwerty_keyboard, qwerty_keyboard.get_stats()), (neu_keyboard, neu_keyboard.get_stats()), (polyglot_keyboard, polyglot_keyboard.get_stats())] + statsX
 
 print_to_txt(stats_comp)
 write_to_csv(stats_comp)
 
 
-coord = [[statistics["total_weight"], statistics["total_sfb"], statistics["ratio_roll"]] for _, statistics in stats_comp]
+coord = [[statistics["total_weight"], statistics["total_sfb"], statistics["total_redirect"]] for _, statistics in stats_comp]
 
 visualize(coord)
 printbarcharts(stats_comp, print={"total_weight", "total_sfb", "total_alternate", "total_saut_doigt", "total_ligne_diff", "total_row_jump", "total_redirect"})
