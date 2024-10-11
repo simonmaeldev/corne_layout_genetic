@@ -5,7 +5,7 @@ from pymoo.core.problem import ElementwiseProblem
 class MyProblem(ElementwiseProblem):
 
     def __init__(self):
-        super().__init__(n_var=1, n_obj=3, n_ieq_constr=1)
+        super().__init__(n_var=1, n_obj=3, n_ieq_constr=2)
     
     def _evaluate(self, x, out, *args, **kwargs):
         keyboard = x[0]
@@ -16,7 +16,7 @@ class MyProblem(ElementwiseProblem):
         # constraints.append(res["sfb_left_max"] - res["sfb_left_min"])
         # constraints.append(res["sfb_right_max"] - res["sfb_right_min"])
         # constraints.append(abs(res["total_left"] - res["total_right"]) - 15)
-        # constraints.append(res["total_weight"] - 85)
+        constraints.append(res["total_weight"] - 85)
         # constraints.append(res["total_weighted_weakness"] - 11.55)
         constraints.append(res["total_sfb"] - 6.6) # 6.6 is the sfb of qwerty
         # constraints.append(res["jump_auri"] - 1)
