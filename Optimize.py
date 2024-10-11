@@ -1,5 +1,7 @@
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
+from pymoo.core.problem import StarmapParallelization
+from multiprocessing.pool import ThreadPool
 import matplotlib.pyplot as plt
 import json
 import csv
@@ -18,6 +20,13 @@ from utils.CsvUtils import visualize, all_cols, sort_cols
 NB_GEN = 12
 POP_SIZE = 300
 
+# parallelisation
+n_threads = 20
+pool = ThreadPool(n_threads)
+runner = StarmapParallelization(pool.starmap)
+
+problem = MyProblem(elementwise_runner=runner)
+
 print(f"[{datetime.now()}] nb gen: {NB_GEN}, nb individus: {POP_SIZE}")
 
 algorithm = NSGA2(pop_size=POP_SIZE,
@@ -28,7 +37,7 @@ algorithm = NSGA2(pop_size=POP_SIZE,
 
 callback = MyCallback()
 
-res = minimize(MyProblem(),
+res = minimize(problem,
                algorithm,
                ('n_gen', NB_GEN),
                callback = callback,
