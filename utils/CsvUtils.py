@@ -30,10 +30,11 @@ def load_csv_res(file_path):
         return selected_columns
 
 def visualize(coord):
-    plot = Scatter(legend=True)
-    plot.add(np.array(coord[2:]))
-    plot.add(np.array([coord[0]]), color="red")
-    plot.add(np.array([coord[1]]), color="green")
+    plot = Scatter(legend=True, labels=["Total Weight", "SFB", "Ratio Roll"])
+    plot.add(np.array(coord[3:]), label="Population", color="blue")
+    plot.add(np.array([coord[0]]), label="QWERTY", color="red")
+    plot.add(np.array([coord[1]]), label="NEU", color="green")
+    plot.add(np.array([coord[2]]), label="Polyglot", color="orange")
     plot.show().save("representation.png")
 
 def sort_cols(in_path, out_path, cols):
